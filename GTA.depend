@@ -1,0 +1,73 @@
+# depslib dependency file v1.0
+1270160090 source:/home/paul/Desktop/Inner Sanctum/GTA/Vec3.cpp
+	"Vec3.h"
+
+1270160090 /home/paul/Desktop/Inner Sanctum/GTA/Vec3.h
+	<cmath>
+
+1270914664 source:/home/paul/Desktop/Inner Sanctum/GTA/main.cpp
+	<iostream>
+	<stdlib.h>
+	"Sprite.h"
+
+1270160090 /home/paul/Desktop/Inner Sanctum/GTA/Sprite.h
+	<vector>
+	"Vec3.h"
+	"Texture_Collection.h"
+
+1270160090 /home/paul/Desktop/Inner Sanctum/GTA/Texture_Collection.h
+	"OpenGL.h"
+	<map>
+	<string>
+
+1270160090 /home/paul/Desktop/Inner Sanctum/GTA/OpenGL.h
+	<GL/glfw.h>
+
+1270907464 source:c:\martyn\code\paul\gta\main.cpp
+	<iostream>
+	<stdlib.h>
+	"Sprite.h"
+
+1270152890 c:\martyn\code\paul\gta\sprite.h
+	<vector>
+	"Vec3.h"
+	"Texture_Collection.h"
+
+1270152890 c:\martyn\code\paul\gta\vec3.h
+	<cmath>
+
+1270152890 c:\martyn\code\paul\gta\texture_collection.h
+	"OpenGL.h"
+	<map>
+	<string>
+
+1270152890 c:\martyn\code\paul\gta\opengl.h
+	<GL/glfw.h>
+
+1270152890 source:c:\martyn\code\paul\gta\vec3.cpp
+	"Vec3.h"
+
+1270918264 source:c:\users\paul-desktop\desktop\innersanctum\gta\main.cpp
+	<iostream>
+	<stdlib.h>
+	"Sprite.h"
+
+1270163690 c:\users\paul-desktop\desktop\innersanctum\gta\sprite.h
+	<vector>
+	"Vec3.h"
+	"Texture_Collection.h"
+
+1270163690 c:\users\paul-desktop\desktop\innersanctum\gta\vec3.h
+	<cmath>
+
+1372028393 c:\users\paul-desktop\desktop\innersanctum\gta\texture_collection.h
+	"OpenGL.h"
+	<map>
+	<string>
+
+1372096387 c:\users\paul-desktop\desktop\innersanctum\gta\opengl.h
+	<GL/glfw.h>
+
+1270163690 source:c:\users\paul-desktop\desktop\innersanctum\gta\vec3.cpp
+	"Vec3.h"
+
