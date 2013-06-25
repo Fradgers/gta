@@ -47,10 +47,18 @@
 1270152890 source:c:\martyn\code\paul\gta\vec3.cpp
 	"Vec3.h"
 
-1270918264 source:c:\users\paul-desktop\desktop\innersanctum\gta\main.cpp
+1270687392 source:c:\users\paul-desktop\desktop\innersanctum\gta\main.cpp
 	<iostream>
 	<stdlib.h>
 	"Sprite.h"
+	<stdint.h>
+	<fstream>
+	<vector>
+	<iostream>
+	<cassert>
+	<sstream>
+	"Map.h"
+	"Style.h"
 
 1270163690 c:\users\paul-desktop\desktop\innersanctum\gta\sprite.h
 	<vector>
@@ -60,14 +68,34 @@
 1270163690 c:\users\paul-desktop\desktop\innersanctum\gta\vec3.h
 	<cmath>
 
-1372028393 c:\users\paul-desktop\desktop\innersanctum\gta\texture_collection.h
+1286384672 c:\users\paul-desktop\desktop\innersanctum\gta\texture_collection.h
 	"OpenGL.h"
+	<GL/glext.h>
 	<map>
 	<string>
 
-1372096387 c:\users\paul-desktop\desktop\innersanctum\gta\opengl.h
+1270685262 c:\users\paul-desktop\desktop\innersanctum\gta\opengl.h
 	<GL/glfw.h>
 
 1270163690 source:c:\users\paul-desktop\desktop\innersanctum\gta\vec3.cpp
 	"Vec3.h"
+
+1270762446 c:\users\paul-desktop\desktop\innersanctum\gta\map.h
+	"binary_reader.h"
+	"OpenGL.h"
+	<vector>
+	<map>
+	<sstream>
+	<iostream>
+
+1270685128 c:\users\paul-desktop\desktop\innersanctum\gta\binary_reader.h
+	<iostream>
+	<stdint.h>
+
+1270685328 c:\users\paul-desktop\desktop\innersanctum\gta\style.h
+	"style_helpers.h"
+
+1270746724 c:\users\paul-desktop\desktop\innersanctum\gta\style_helpers.h
+	"Texture_Collection.h"
+	<iomanip>
 

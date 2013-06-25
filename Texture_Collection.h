@@ -1,4 +1,8 @@
+#ifndef _TEXTURE_COLLECTION_H_
+#define _TEXTURE_COLLECTION_H_
+
 #include "OpenGL.h"
+#include <GL/glext.h>
 
 #include <map>
 #include <string>
@@ -41,6 +45,56 @@ public:
         return texture_name;
     }
 
+    Texture_Name load_texture( uint32_t* data )
+    {
+        //GLFWimage img;
+
+        Texture_Name texture_name( 0 );
+        glGenTextures( 1, &texture_name );
+
+        glEnable( GL_TEXTURE_2D );
+        glBindTexture( GL_TEXTURE_2D, texture_name );
+
+        glTexImage2D( GL_TEXTURE_2D, 0, 4, 64, 64, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
+
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glDisable( GL_TEXTURE_2D );
+
+        return texture_name;
+    }
+
 private:
     std::map<Texture_File, Texture_Name> texture_lookup;
 };
+
+#endif
+
+/**
+        unsigned int texture_idx = 0;
+        unsigned int pixel_idx = 0;
+
+        for ( unsigned int row = 0; row != 4*64; ++row )
+        {
+            int texture_row = row / 64;
+            int pixel_row = row - ( texture_row * 64 );
+
+//            cout << "[" << texture << "] " << flush;
+//            cout << hex << setw(8) << setfill('0') << ppal->color_at( palx->ppalette( texture ), pixel_index ) << dec;
+            for ( unsigned int column = 0; column != 4*64; ++column )
+            {
+                int texture_column = column / 64;
+                int pixel_column = column - ( texture_column * 64 );
+
+                texture_idx = texture_row * 4 + texture_column;
+                pixel_idx = pixel_row * 64 + pixel_column;//(( row % 64 ) * 64 ) + ( column % 64 );
+
+                uint8_t pixel = binary_reader( tile->color_index_data, 1 ).as<uint8_t>( 0 );
+                depaletted_pixels[ (texture_idx*64*64) + pixel_idx ] = ppal->color_at( palx->ppalette( texture_idx ), pixel );
+            }
+       //     cout << "." << endl;
+
+            Texture_Collection::Texture_Name bleh = textures.load_texture( depaletted_pixels + (texture_idx*64*64) );
+            if ( texture_idx == 0 ) first_texture = bleh;
+        }
+*/

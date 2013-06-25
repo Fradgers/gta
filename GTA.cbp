@@ -37,12 +37,17 @@
 			<Add option="-lgdi32" />
 			<Add option="-lglu32" />
 		</Linker>
+		<Unit filename="Map.cpp" />
+		<Unit filename="Map.h" />
 		<Unit filename="OpenGL.h" />
 		<Unit filename="Sprite.h" />
+		<Unit filename="Style.h" />
 		<Unit filename="Texture_Collection.h" />
 		<Unit filename="Vec3.cpp" />
 		<Unit filename="Vec3.h" />
+		<Unit filename="binary_reader.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="style_helpers.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

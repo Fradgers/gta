@@ -1,3 +1,5 @@
+#ifndef _OPENGL_H_
+#define _OPENGL_H_
 
 #include <GL/glfw.h>
 
@@ -35,3 +37,5 @@ public:
 private:
     bool successful_init;
 };
+
+#endif

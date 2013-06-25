@@ -34,8 +34,7 @@ using namespace std;
 public:
     Texture_Collection::Texture_Name left, right, front, rear, lid;
 };*/
-
-
+/*
 class Textured_Cube {
 public:
     Textured_Cube( const Vec3& position, const Vec3& dim, const Texture_Collection::Texture_Name& tex )
@@ -44,11 +43,8 @@ public:
         texture( tex )
     { ; }
 
-    enum Side { Left, Right, Front, Rear, Lid };
-    enum Orientation { zero_degrees = 0, ninety_degrees, one_eighty_degrees, two_seventy_degrees };
+    enum Side { Left, Right, Front, Rear, Top, Bottom };
 
-    void draw();
-/*
     void draw()
     {
         float w2 = dimensions.x / 2.0f;
@@ -114,94 +110,105 @@ public:
             glEnd();
             glDisable( GL_TEXTURE_2D );
         glPopMatrix();
-    }*/
+    }
 
-    Texture_Collection::Texture_Name textures[6];
     Vec3 centre;
     Vec3 dimensions;
     Texture_Collection::Texture_Name texture;
 };
+*/
 
 
-    void draw_face( const Textured_Cube::Side& face, const Texture_Collection::Texture_Name& texture, const Textured_Cube::Orientation& tex_rotate, bool xflip )
+#include <stdint.h>
+#include <fstream>
+#include <vector>
+#include <iostream>
+
+using namespace std;
+
+#include <cassert>
+
+
+#include <sstream>
+
+
+#include "Map.h"
+#include "Style.h"
+
+
+
+
+
+
+
+class Map {
+public:
+    enum Chunk_Id {
+        CMAP = 1346456899,
+        DMAP = 1346456900,
+        ZONE = 1162760026,
+        EDIT = 1414087749,
+        LGHT = 1414022988,
+        RGEN = 1313163090,
+        ANIM = 1296649793,
+        PSXM = 1297634128
+    };
+    enum Endian_Check { GBMP = 1347240519, PMBG = 1195527504 };
+
+    Map( std::ifstream& stream )
+    :   dmap( NULL )
     {
-        static GLfloat div2 = 0.5f;
-        ///                                                     no flip,                   flip-rotate,          rotate-flip
-        static GLfloat tex_rot0[24] = { 0,0, 1,0, 1,1, 0,1,  1,0, 0,0, 0,1, 1,1,   1,0, 0,0, 0,1, 1,1,  };
-        //static GLfloat tex_rot90[16] = { 0,1, 0,0, 1,0, 1,1,  0,0, 0,1, 1,1, 1,0 };
-        static GLfloat tex_rot90[24] = { 1,0, 1,1, 0,1, 0,0,  1,1, 1,0, 0,0, 0,1,    0,0, 0,1, 1,1, 1,0 };
-        static GLfloat tex_rot180[24] = { 1,1, 0,1, 0,0, 1,0,  0,1, 1,1, 1,0, 0,0,   0,1, 1,1, 1,0, 0,0 };
-        //static GLfloat tex_rot270[16] = { 1,0, 1,1, 0,1, 0,0,  1,1, 1,0, 0,0, 0,1 };
-        static GLfloat tex_rot270[24] = { 0,1, 0,0, 1,0, 1,1,  0,0, 0,1, 1,1, 1,0,   1,1, 1,0, 0,0, 0,1 };
+        binary_reader map_header_reader( stream, 6 );
 
-        static GLfloat vtx[60] = {
-            div2, div2, -div2,    div2, -div2, -div2,     div2, -div2, div2,      div2, div2, div2, // left face
-            -div2, -div2, -div2,  -div2, div2, -div2,     -div2, div2, div2,      -div2, -div2, div2, // right face
-            -div2, div2, -div2,   div2, div2, -div2,      div2, div2, div2,       -div2, div2, div2, // front face
-            div2, -div2, -div2,   -div2, -div2, -div2,    -div2, -div2, div2,     div2, -div2, div2, // rear face
-            div2, -div2, div2,    -div2, -div2, div2,     -div2, div2, div2,      div2, div2, div2 // lid face
-            //-div2, -div2, div2,    div2, -div2, div2,     div2, div2, div2,      -div2, div2, div2 // lid face
-        };
+        if ( map_header_reader.as<uint32_t>( 0 ) == GBMP )
+            std::cout << "<<GBMP>> :: Endian correct" << endl;
+        else if ( map_header_reader.as<uint32_t>( 0 ) == PMBG )
+            std::cout << "<<GBMP>> :: Endian inverse" << endl;
 
-        enum Flip { No_Flip = 0, Rotate_Flip, Flip_Rotate };
-
-        ///block_binary_info::Face_Orientation tex_rotate = block_binary_info::zero_degrees;
-        ///Flip flip_type = No_Flip;
-        Flip flip_type = ( xflip ) ? Rotate_Flip : No_Flip;
-
-    #if true
-        if ( xflip )
-            glColor3f( 1.0f, 0.5f, 0.5f );
-        else
-            glColor3f( 1.0f, 1.0f, 1.0f );
-    #else
-        switch ( tex_rotate )
+        while ( ! stream.eof() )
         {
-            case 0 : glColor3f( 1.0f, 1.0f, 1.0f ); break;
-            case 1 : glColor3f( 1.0f, 0.5f, 0.5f ); break;
-            case 2 : glColor3f( 0.5f, 1.0f, 0.5f ); break;
-            case 3 : glColor3f( 0.5f, 0.5f, 1.0f ); break;
-            default : glColor3f( 0.2f, 0.2f, 0.2f ); break;
-        }
-    #endif
+            chunk_reader map_chunk_reader( stream );
 
-        glBindTexture( GL_TEXTURE_2D, texture );
-        glBegin( GL_QUADS );
-            for ( int vertex = 0; vertex != 4; ++vertex )
+            switch ( map_chunk_reader.chunk_type )
             {
-                switch ( tex_rotate )
+                case DMAP :
                 {
-                    case 0 : glTexCoord2fv( tex_rot0 + (flip_type*8) + (vertex*2)); break;
-                    case 1 : glTexCoord2fv( tex_rot90 + (flip_type*8) + (vertex*2)); break;
-                    case 2 : glTexCoord2fv( tex_rot180 + (flip_type*8) + (vertex*2)); break;
-                    case 3 : glTexCoord2fv( tex_rot270 + (flip_type*8) + (vertex*2)); break;
-                    default : glColor3f( 0.0f,0.0f,0.0f );
+                    cout << "<DMAP>" << endl;
+                    stringstream body_stream( map_chunk_reader.body( stream ));
+                    dmap = new dmap_reader( body_stream );
+                    break;
                 }
-
-                glVertex3fv( vtx + face*12 + vertex*3 );
+                case CMAP :
+                case ZONE :
+                case PSXM :
+                case ANIM :
+                case LGHT :
+                case EDIT :
+                case RGEN :
+                ///case MOBJ :
+                {
+                    map_chunk_reader.body( stream );
+                    cout << "<OTHER>" << endl;
+                    break;
+                }
+                default :
+                {
+                    //cout << "<UNRECOGNISED>" << endl;
+                    break;
+                }
             }
-        glEnd();
-
+        }
     }
 
+    void draw( const Style& style )
+    {
+        if ( dmap ) dmap->draw( style );
+    }
 
-void Textured_Cube::draw()
-{
-    glPushMatrix();
-        glTranslatef( centre.x, centre.y, centre.z );
+    ~Map() { delete dmap; }
 
-        glEnable( GL_TEXTURE_2D );
-            Textured_Cube::Orientation orientation = zero_degrees;
-            bool xflip = false;
-
-            draw_face( Left, texture, orientation, xflip );
-            draw_face( Right, texture, orientation, xflip );
-            draw_face( Rear, texture, orientation, xflip );
-            draw_face( Front, texture, orientation, xflip );
-            draw_face( Lid, texture, orientation, xflip );
-        glDisable( GL_TEXTURE_2D );
-    glPopMatrix();
-}
+    dmap_reader* dmap;
+};
 
 
 int main( int argc, char** argv )
@@ -209,29 +216,57 @@ int main( int argc, char** argv )
     OpenGL opengl;
     if ( ! opengl.good() ) return -1;
 
-    Vec3 camera( 0.0f, 0.0f, 7.0f );
+    std::ifstream stream( "MP1-comp.gmp", ios::in | ios::binary );
+    if ( ! stream.is_open() )
+        return -1;
 
-    Texture_Collection textures;
-    Texture_Collection::Texture_Name tex = textures.load_texture( "text_test.tga" );
+    Map map( stream );
+    stream.close();
 
-    Textured_Cube cube( Vec3( 1.0f, -2.0f, -1.0f ), Vec3( 1,1,1 ), tex );
+    stream.open( "bil.sty", ios::in | ios::binary );
+    if ( ! stream.is_open() )
+        return -1;
+
+    Style style( stream );
+    stream.close();
+
+    Vec3 camera( 50.0f, 170.0f, 30.0f );
+    //Vec3 camera( 0.0f, 0.0f, 130.0f );
+
+ //   Texture_Collection textures;
+//    Texture_Collection::Texture_Name tex1 = textures.load_texture( "test.tga" );
+   // Texture_Collection::Texture_Name tex2 = textures.load_texture( "text_test.tga" );
+
+    //Textured_Cube cube1( Vec3( 1.0f, -2.0f, -1.0f ), Vec3( 1,1,1 ), tex1 );
+    //Textured_Cube cube2( Vec3( 1.0f, -2.0f, 0.0f ), Vec3( 1,1,1 ), tex2 ) ;
 
     while ( ! glfwGetKey( GLFW_KEY_ESC ) )
     {
+        //glClearColor( 0.8f, 0.5f, 0.5f, 0.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         glMatrixMode( GL_MODELVIEW );
         glLoadIdentity();
 
-        if ( glfwGetKey( GLFW_KEY_LEFT ))  camera += Vec3(  0.02f, 0.0f, 0.0f );
-        if ( glfwGetKey( GLFW_KEY_RIGHT )) camera += Vec3( -0.02f, 0.0f, 0.0f );
-        if ( glfwGetKey( GLFW_KEY_UP ))  camera += Vec3(  0.0f, 0.02f, 0.0f );
-        if ( glfwGetKey( GLFW_KEY_DOWN )) camera += Vec3( 0.0f, -0.02f, 0.0f );
+        if ( glfwGetKey( GLFW_KEY_LEFT ))  camera += Vec3(  0.8f, 0.0f, 0.0f );
+        if ( glfwGetKey( GLFW_KEY_RIGHT )) camera += Vec3( -0.8f, 0.0f, 0.0f );
+        if ( glfwGetKey( GLFW_KEY_UP ))  camera += Vec3(  0.0f, 0.8f, 0.0f );
+        if ( glfwGetKey( GLFW_KEY_DOWN )) camera += Vec3( 0.0f, -0.8f, 0.0f );
 
+        glRotatef(-45, 1.0f, -1.0f, -1.0f );
         glTranslatef( -camera.x, -camera.y, -camera.z );
 
+        /*glBegin(GL_QUADS);
+            glColor3f( 0.2f,0.5f,0.2f );
+            glVertex3f( -700, -700, 7 );
+            glVertex3f( 700, -700, 7 );
+            glVertex3f( 700, 700, 7 );
+            glVertex3f( -700, 700, 7 );
+        glEnd();*/
+
         /// draw here
-        cube.draw();
+        map.draw( style );
+        //style.draw();
 
         glfwSwapBuffers();
     }
