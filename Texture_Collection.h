@@ -2,10 +2,14 @@
 #define _TEXTURE_COLLECTION_H_
 
 #include "OpenGL.h"
+#include <GL/glext.h>
 
 #include <map>
 #include <string>
 #include <stdint.h>
+#include <iostream>
+
+#include <GL/gl.h>
 
 class Texture_Collection {
 public:
@@ -38,7 +42,7 @@ public:
 
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glDisable( GL_TEXTURE_2D );
+//        glDisable( GL_TEXTURE_2D );
 
         texture_lookup.insert( make_pair( filename, texture_name ));
 
@@ -53,15 +57,10 @@ public:
         glEnable( GL_TEXTURE_2D );
         glBindTexture( GL_TEXTURE_2D, texture_name );
 
-        ///glTexImage2D( GL_TEXTURE_2D, 0, 4, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
-        ///glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+        glTexImage2D( GL_TEXTURE_2D, 0, 4, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
 
-        gluBuild2DMipmaps( GL_TEXTURE_2D, 4, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
-
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1 );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glDisable( GL_TEXTURE_2D );
 
         return texture_name;
     }

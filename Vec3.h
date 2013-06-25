@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+const float deg_to_rad = 3.1416f / 180.0f;
+
 class Vec3 {
 public:
     typedef Vec3 Self;
@@ -82,6 +84,9 @@ public:
     float x, y, z;
 };
 
+
+#include <iostream>
+std::ostream& operator<<( std::ostream& stream, const Vec3& vec );
 
 Vec3 operator+( const Vec3& lhs, const Vec3& rhs );
 

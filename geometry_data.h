@@ -46,9 +46,13 @@ enum Axis { No_Axis = 0, X_Axis = 1, Y_Axis = 2, Z_Axis = 4 };
 
 class Face {
 public:
-    Face() { }
-
-    Face( Face_Type face, GLfloat rot, Axis ax, GLfloat off, GLfloat ln = 0.0f )
+    Face(
+        Face_Type face = No_Face,
+        GLfloat off = 0.0f,
+        Axis ax = No_Axis,
+        GLfloat rot = 0.0f,
+        GLfloat ln = 0.0f
+    )
     :   type( face ), rotation(rot), axis(ax), offset(off), lean(ln)
     { }
 
@@ -64,86 +68,85 @@ const GLfloat two_segment_slope = 26.565f;
 const GLfloat one_segment_slope = 45.0f;
 
 Face blocks[ BLOCK_TYPE_COUNT ][ 5 ] = {
+    /// Rear                           Right                           Front                          Left                              Lid
     /// Cube (x1)
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0.5f ) }, /// Cube
+    { Face( Full_Square ), Face( Full_Square ), Face( Full_Square ), Face( Full_Square ), Face( Full_Square, 0.5f ) }, /// Cube
 
     /// 26 degree slopes (x8)
     // North26_x
-    /// Rear                                                      Right                                                     Front                                                     Left                                                       Lid
-    { Face( Half_Height, 0, No_Axis, 0 ), Face( Lower26R, 0, No_Axis, 0 ), Face( No_Face,     0, No_Axis, 0 ), Face( Lower26L, 0, No_Axis, 0 ), Face( Slope_NS26, two_segment_slope, X_Axis, -0.25f ) }, /// North26_x
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Upper26R, 0, No_Axis, 0 ), Face( Half_Height, 0, No_Axis, 0 ), Face( Upper26L, 0, No_Axis, 0 ), Face( Slope_NS26, two_segment_slope, X_Axis,  0.25f ) }, //
+    { Face( Half_Height ), Face( Lower26R ), Face(), Face( Lower26L ), Face( Slope_NS26, -0.25f, X_Axis, two_segment_slope ) }, /// North26_x
+    { Face( Full_Square ), Face( Upper26R ), Face( Half_Height ), Face( Upper26L ), Face( Slope_NS26, 0.25f, X_Axis,  two_segment_slope ) }, //
 
     // South26_x
-    { Face( No_Face,     0, No_Axis, 0 ), Face( Lower26L, 0, No_Axis, 0 ), Face( Half_Height, 0, No_Axis, 0 ), Face( Lower26R, 0, No_Axis, 0 ), Face( Slope_NS26, -two_segment_slope, X_Axis, -0.25f ) }, /// South26_x
-    { Face( Half_Height, 0, No_Axis, 0 ), Face( Upper26L, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Upper26R, 0, No_Axis, 0 ), Face( Slope_NS26, -two_segment_slope, X_Axis,  0.25f ) }, //
+    { Face(), Face( Lower26L ), Face( Half_Height ), Face( Lower26R ), Face( Slope_NS26, -0.25f, X_Axis, -two_segment_slope ) }, /// South26_x
+    { Face( Half_Height ), Face( Upper26L ), Face( Full_Square ), Face( Upper26R ), Face( Slope_NS26, 0.25f, X_Axis,  -two_segment_slope ) }, //
 
     // West26_x
-    { Face( Lower26R, 0, No_Axis, 0 ), Face( No_Face,     0, No_Axis, 0 ), Face( Lower26L, 0, No_Axis, 0 ), Face( Half_Height, 0, No_Axis, 0 ), Face( Slope_EW26, two_segment_slope, Y_Axis, -0.25f ) }, /// West26_x
-    { Face( Upper26R, 0, No_Axis, 0 ), Face( Half_Height, 0, No_Axis, 0 ), Face( Upper26L, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Slope_EW26, two_segment_slope, Y_Axis,  0.25f ) }, //
+    { Face( Lower26R ), Face(), Face( Lower26L ), Face( Half_Height ), Face( Slope_EW26, -0.25f, Y_Axis, two_segment_slope ) }, /// West26_x
+    { Face( Upper26R ), Face( Half_Height ), Face( Upper26L ), Face( Full_Square ), Face( Slope_EW26, 0.25f, Y_Axis,  two_segment_slope ) }, //
 
     // East26_x
-    { Face( Lower26L, 0, No_Axis, 0 ), Face( Half_Height, 0, No_Axis, 0 ), Face( Lower26R, 0, No_Axis, 0 ), Face( No_Face,     0, No_Axis, 0 ), Face( Slope_EW26, -two_segment_slope, Y_Axis, -0.25f ) }, /// East26_x
-    { Face( Upper26L, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Upper26R, 0, No_Axis, 0 ), Face( Half_Height, 0, No_Axis, 0 ), Face( Slope_EW26, -two_segment_slope, Y_Axis,  0.25f ) }, //
+    { Face( Lower26L ), Face( Half_Height ), Face( Lower26R ), Face(), Face( Slope_EW26, -0.25f, Y_Axis, -two_segment_slope ) }, /// East26_x
+    { Face( Upper26L ), Face( Full_Square ), Face( Upper26R ), Face( Half_Height ), Face( Slope_EW26, 0.25f, Y_Axis,  -two_segment_slope ) }, //
 
     /// 7 degree slopes (x32)
     // North7_x
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, -0.4375f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, -0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, -0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, -0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, +0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, +0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, +0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, eight_segment_slope, X_Axis, +0.4375f ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.4375f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.3125f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.1875f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.0625f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.0625f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.1875f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.3125f, X_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.4375f, X_Axis, eight_segment_slope ) },
 
     // South7_x
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, -0.4375f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, -0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, -0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, -0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, +0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, +0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, +0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -eight_segment_slope, X_Axis, +0.4375f ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.4375f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.3125f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.1875f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, -0.0625f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.0625f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.1875f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.3125f, X_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_NS7, +0.4375f, X_Axis, -eight_segment_slope ) },
 
     // West7_x
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, -0.4375f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, -0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, -0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, -0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, +0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, +0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, +0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, eight_segment_slope, Y_Axis, +0.4375f ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.4375f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.3125f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.1875f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.0625f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.0625f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.1875f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.3125f, Y_Axis, eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.4375f, Y_Axis, eight_segment_slope ) },
 
     // East7_x
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, -0.4375f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, -0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, -0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, -0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, +0.0625f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, +0.1875f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, +0.3125f ) },
-    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -eight_segment_slope, Y_Axis, +0.4375f ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.4375f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.3125f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.1875f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, -0.0625f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.0625f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.1875f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.3125f, Y_Axis, -eight_segment_slope ) },
+    { Face(), Face(), Face(), Face(), Face( Slope_EW7, +0.4375f, Y_Axis, -eight_segment_slope ) },
 
     /// 45 degree slopes (x4)
-    /// Rear                                                      Right                                                                      Front                                                       Left                                                       Lid
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_SE, 0, No_Axis, 0 ), Face( No_Face,     0, No_Axis, 0 ), Face( Triangle_SW, 0, No_Axis, 0 ), Face( Slope_NS45,  one_segment_slope, X_Axis, 0 ) }, /// North45
-    { Face( No_Face,     0, No_Axis, 0 ), Face( Triangle_SW, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_SE, 0, No_Axis, 0 ), Face( Slope_NS45, -one_segment_slope, X_Axis, 0 ) }, /// South45
-    { Face( Triangle_SE, 0, No_Axis, 0 ), Face( No_Face,     0, No_Axis, 0 ), Face( Triangle_SW, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Slope_EW45, one_segment_slope, Y_Axis, 0 ) }, /// West45
-    { Face( Triangle_SW, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_SE, 0, No_Axis, 0 ), Face( No_Face,     0, No_Axis, 0 ), Face( Slope_EW45, -one_segment_slope, Y_Axis, 0 ) }, /// East45
+    { Face( Full_Square ), Face( Triangle_SE ), Face(), Face( Triangle_SW ), Face( Slope_NS45,  0, X_Axis, one_segment_slope ) }, /// North45
+    { Face(), Face( Triangle_SW ), Face( Full_Square ), Face( Triangle_SE ), Face( Slope_NS45, 0, X_Axis, -one_segment_slope ) }, /// South45
+    { Face( Triangle_SE ), Face(), Face( Triangle_SW ), Face( Full_Square ), Face( Slope_EW45, 0, Y_Axis, one_segment_slope ) }, /// West45
+    { Face( Triangle_SW ), Face( Full_Square ), Face( Triangle_SE ), Face(), Face( Slope_EW45, 0, Y_Axis, -one_segment_slope ) }, /// East45
 
     /// Diagonals (x4)
-    { Face( No_Face, 0, No_Axis, 0 ),     Face( Full_Square,     0, No_Axis,    0 ),       Face( Full_Square, 0, No_Axis, 0 ),    Face( Slope_EW45, -45.0f, Z_Axis,  -0.5f ),  Face( Triangle_SE, 0, No_Axis, 0.5f ) }, /// Diagonal_NW
-    { Face( No_Face,   0, No_Axis, 0 ),  Face( Slope_EW45,  45.0f, Z_Axis, -0.5f ),  Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square,     0, No_Axis,     0 ), Face( Triangle_SW, 0, No_Axis, 0.5f ) }, /// Diagonal_NE
-    { Face( Full_Square,   0, No_Axis, 0 ),  Face( Full_Square, 0, No_Axis, 0 ),        Face( No_Face,     0, No_Axis,     0 ), Face( Slope_EW45, 45.0f, Z_Axis, -0.5f ), Face( Triangle_NE, 0, No_Axis, 0.5f ) }, /// Diagonal_SW
-    { Face( Full_Square,     0, No_Axis, 0 ),    Face( Slope_EW45,  -45.0f, Z_Axis,  -0.5f ), Face( No_Face, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_NW, 0, No_Axis, 0.5f ) }, /// Diagonal_SE
+    { Face(),     Face( Full_Square ),       Face( Full_Square ),    Face( Slope_EW45, -0.5f, Z_Axis, -45.0f ),  Face( Triangle_SE, .5f ) }, /// Diagonal_NW
+    { Face(),  Face( Slope_EW45, -0.5f, Z_Axis, 45.0f ),  Face( Full_Square ), Face( Full_Square ), Face( Triangle_SW, .5f ) }, /// Diagonal_NE
+    { Face( Full_Square ),  Face( Full_Square ),        Face(), Face( Slope_EW45, -0.5f, Z_Axis, 45.0f ), Face( Triangle_NE, .5f ) }, /// Diagonal_SW
+    { Face( Full_Square ),    Face( Slope_EW45, -0.5f, Z_Axis, -45.0f ), Face(), Face( Full_Square ), Face( Triangle_NW, .5f ) }, /// Diagonal_SE
 
     /// Diagonal Slopes ( three low corners, one raised corner ) (x4)
-    { Face(), Face(), Face(), Face( Triangle_Point_Top, -45.0f, Z_Axis, -0.8535f, -35.264f ), Face() }, // NW
-    { Face(), Face( Triangle_Point_Top, 45.0f, Z_Axis, -0.8535f, -35.264f ), Face(), Face(), Face() }, // NE
-    { Face(), Face(), Face(), Face( Triangle_Point_Top, 45.0f, Z_Axis, -0.8535f, -35.264f ), Face() }, // SW
-    { Face(), Face( Triangle_Point_Top, -45.0f, Z_Axis, -0.8535f, -35.264f ), Face(), Face(), Face() }, // SE
+    { Face(), Face(), Face(), Face( Triangle_Point_Top, -0.8535f, Z_Axis, -45.0f, -35.264f ), Face() }, // NW
+    { Face(), Face( Triangle_Point_Top, -0.8535f, Z_Axis, 45.0f, -35.264f ), Face(), Face(), Face() }, // NE
+    { Face(), Face(), Face(), Face( Triangle_Point_Top, -0.8535f, Z_Axis, 45.0f, -35.264f ), Face() }, // SW
+    { Face(), Face( Triangle_Point_Top, -0.8535f, Z_Axis, -45.0f, -35.264f ), Face(), Face(), Face() }, // SE
 
     /// Partial Blocks (x9)
     {  },
@@ -157,14 +160,14 @@ Face blocks[ BLOCK_TYPE_COUNT ][ 5 ] = {
     {  },
 
     /// Reserved (x2)
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0.5f ) }, /// Reserved
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0.5f ) }, /// Under_Slope
+    { Face( Full_Square ), Face( Full_Square ), Face( Full_Square ), Face( Full_Square ), Face( Full_Square, .5f ) }, /// Reserved
+    { Face( Full_Square ), Face( Full_Square ), Face( Full_Square ), Face( Full_Square ), Face( Full_Square, .5f ) }, /// Under_Slope
 
     /// Alternate Diagonal Slopes ( 3 raised corners, one low corner ) (x4)
-    { Face(), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_Point_Bottom, -45.0f, Z_Axis, -0.1464f, -35.264f ), Face( Triangle_SE, 0, No_Axis, 0.5f ) }, // NW
-    { Face(), Face( Triangle_Point_Bottom, 45.0f, Z_Axis, -0.1464f, -35.264f ), Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_SW, 0, No_Axis, 0.5f ) }, // NE
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Full_Square, 0, No_Axis, 0 ), Face(), Face( Triangle_Point_Bottom, 45.0f, Z_Axis, -0.1464f, -35.264f ), Face( Triangle_NE, 0, No_Axis, 0.5f ) }, // SW
-    { Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_Point_Bottom, -45.0f, Z_Axis, -0.1464f, -35.264f ), Face(), Face( Full_Square, 0, No_Axis, 0 ), Face( Triangle_NW, 0, No_Axis, 0.5f ) }, // SE
+    { Face(), Face( Full_Square ), Face( Full_Square ), Face( Triangle_Point_Bottom, -0.1464f, Z_Axis, -45.0f, -35.264f ), Face( Triangle_SE, .5f ) }, // NW
+    { Face(), Face( Triangle_Point_Bottom, -0.1464f, Z_Axis, 45.0f, -35.264f ), Face( Full_Square ), Face( Full_Square ), Face( Triangle_SW, .5f ) }, // NE
+    { Face( Full_Square ), Face( Full_Square ), Face(), Face( Triangle_Point_Bottom, -0.1464f, Z_Axis, 45.0f, -35.264f ), Face( Triangle_NE, .5f ) }, // SW
+    { Face( Full_Square ), Face( Triangle_Point_Bottom, -0.1464f, Z_Axis, -45.0f, -35.264f ), Face(), Face( Full_Square ), Face( Triangle_NW, .5f ) }, // SE
 };
 
 

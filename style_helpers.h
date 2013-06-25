@@ -1,5 +1,6 @@
 #include "Texture_Collection.h"
 #include <sstream>
+#include "binary_reader.h"
 
 class tile_reader {
 public:
@@ -133,6 +134,7 @@ public:
     uint8_t num_doors;
 };
 
+#include <vector>
 class cari_reader {
 public:
     cari_reader( std::istream& stream )

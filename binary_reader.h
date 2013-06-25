@@ -1,3 +1,5 @@
+#ifndef _BINARY_READER_H_
+#define _BINARY_READER_H_
 
 #include <iostream>
 #include <stdint.h>
@@ -6,9 +8,9 @@
 class binary_reader {
 public:
     binary_reader( std::istream& stream, size_t num_bytes )
-    :   data_length( num_bytes )
+    :   data_length( num_bytes ),
+        data( new char[ data_length ] )
     {
-        data = new char[ data_length ];
         stream.read( data, data_length );
     }
 
@@ -29,8 +31,8 @@ public:
     ~binary_reader() { delete [] data; }
 
 public:
-    char* data;
     uint32_t data_length;
+    char* data;
 };
 
 class chunk_reader {
@@ -39,7 +41,7 @@ public:
     {
         binary_reader chunk_header( file_stream, 8 );
 
-        chunk_type = chunk_header.as<uint32_t>( 0 );
+        chunk_type       = chunk_header.as<uint32_t>( 0 );
         chunk_size_bytes = chunk_header.as<uint32_t>( 4 );
     }
 
@@ -51,3 +53,5 @@ public:
     uint32_t chunk_type;
     uint32_t chunk_size_bytes;
 };
+
+#endif

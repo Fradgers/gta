@@ -7,9 +7,10 @@
 class OpenGL {
 public:
     OpenGL()
+    :   successful_init( true )
     {
-        successful_init = glfwInit();
-        successful_init = glfwOpenWindow( 800, 600, 0,0,0,0, 8, 0, GLFW_WINDOW );
+        if ( successful_init ) successful_init = glfwInit();
+        if ( successful_init ) successful_init = glfwOpenWindow( 800, 600, 0,0,0,0, 8, 0, GLFW_WINDOW );
 
         glfwSetWindowTitle( "GLFW Test" );
 
@@ -28,6 +29,7 @@ public:
         glEnable( GL_DEPTH_TEST );
         glDepthFunc( GL_LEQUAL );
         glEnable( GL_BLEND );
+
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     }
 

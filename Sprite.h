@@ -1,4 +1,4 @@
-
+/*
 #include <vector>
 #include "Vec3.h"
 #include "Texture_Collection.h"
@@ -29,7 +29,7 @@ public:
                 glTexCoord2f(  1.0f,  1.0f ); glVertex3f(  0.5f,  0.5f, 0.0f );
                 glTexCoord2f( -0.0f,  1.0f ); glVertex3f( -0.5f,  0.5f, 0.0f );
             glEnd();
-            glDisable( GL_TEXTURE_2D );
+//            glDisable( GL_TEXTURE_2D );
         glPopMatrix();
     }
 
@@ -37,4 +37,4 @@ private:
     Texture_Collection::Texture_Name texture;
     Vec3 centre;
     float angle_degrees;
-};
+};*/
