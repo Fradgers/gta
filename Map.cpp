@@ -19,7 +19,7 @@ enum Shape_Type {
 enum Vertex { Upper_Left = 0, Upper_Right, Lower_Right, Lower_Left, VERTEX_COUNT };
 
 GLfloat colours[10][3] = {
-    0.3f, 0.3f, 0.3f,
+    0.5f, 0.5f, 0.5f,
     1.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f,///
     0.0f, 0.0f, 1.0f,
@@ -79,13 +79,13 @@ GLfloat vertices[SHAPE_TYPE_COUNT][5][VERTEX_COUNT][3] = {
     0, 0, 0,   0, 1, 0,   0, 1, 1,   0, 0, 1,   // right face
     0, 1, 0,   1, 1, 0,   1, 1, 1,   0, 1, 1,   // front face
     1, 0, 0,   0, 0, 0,   0, 0, 1,   1, 0, 1,   // rear face
-    0, 1, 1,   1, 1, 1,   1, 0, 1,   0, 0, 1,   // lid face
+    0, 0, 1,   1, 0, 1,   1, 1, 1,   0, 1, 1,   // lid face
     /// Two_Point_Slope_26
     1, 1, 0,   1, 0, 0,   1, 0, 1,   1, 1, 0.5f,   // left face
     0, 0, 0,   0, 1, 0,   0, 1, 0.5f,   0, 0, 1,   // right face
     0, 1, 0,   1, 1, 0,   1, 1, 0.5f,   0, 1, 0.5f,   // front face
     1, 0, 0,   0, 0, 0,   0, 0, 1,   1, 0, 1,   // rear face
-    0, 1, 0.5f,   1, 1, 0.5f,   1, 0, 1,   0, 0, 1,   // lid face
+    0, 0, 0.5f,   1, 0, 0.5f,   1, 1, 1,   0, 1, 1,   // lid face
     /// Two_Point_Slope_26
     1, 1, 0,   1, 0, 0,   1, 0, 0.5f,   1, 1, 0,   // left face
     0, 0, 0,   0, 1, 0,   0, 1, 0,   0, 0, 0.5f,   // right face
@@ -152,12 +152,12 @@ struct Coord3f {
     GLfloat x, y, z;
 };
 
-Coord3f coord_at( Shape_Type shape, Block_Face face, Vertex vertex )
+Coord3f coord_at( Geometry geometry, Block_Face face, Vertex vertex )
 {
     return Coord3f(
-        vertices[ shape ][ face ][ vertex ][0],
-        vertices[ shape ][ face ][ vertex ][1],
-        vertices[ shape ][ face ][ vertex ][2]
+        vertices[ geometry.shape_type ][ face ][ vertex ][0],
+        vertices[ geometry.shape_type ][ face ][ vertex ][1],
+        vertices[ geometry.shape_type ][ face ][ vertex ][2] + geometry.vertical_offset
     );
 }
 
@@ -168,9 +168,9 @@ struct Coord2f {
     GLfloat x, y;
 };
 
-Coord2f tex_coord_at( Shape_Type shape, Block_Face face, Vertex vertex )
+Coord2f tex_coord_at( Geometry geometry, Block_Face face, Vertex vertex )
 {
-    Coord3f vertex_coords = coord_at( shape, face, vertex );
+    Coord3f vertex_coords = coord_at( geometry, face, vertex );
 
     switch ( face )
     {
@@ -184,7 +184,7 @@ Coord2f tex_coord_at( Shape_Type shape, Block_Face face, Vertex vertex )
             return Coord2f( vertex_coords.x, vertex_coords.y );
     }
 }
-
+/*
 Coord2f tex_coord_at( Block_Face face, Coord3f vertex_coords )
 {
     switch ( face )
@@ -198,17 +198,11 @@ Coord2f tex_coord_at( Block_Face face, Coord3f vertex_coords )
         case Lid :
             return Coord2f( vertex_coords.x, vertex_coords.y );
     }
-}
+}*/
 
 void face_draw( const block_binary_info& block, const Geometry& geometry, const Block_Face& face, const Style& style )
 {
     enum Flip { No_Flip = 0, Flip_Rotate, FLIP_TYPES_COUNT };
-
-    ///                                                                                                                                       no flip,                     flip-rotate
-    static GLfloat tex_rot0[FLIP_TYPES_COUNT][VERTEX_COUNT][2] = {{ 0,0, 1,0, 1,1, 0,1 }, { 1,0, 0,0, 0,1, 1,1 }};
-    static GLfloat tex_rot90[2][4][2] = { 1,0, 1,1, 0,1, 0,0,  1,1, 1,0, 0,0, 0,1 };
-    static GLfloat tex_rot180[2][4][2] = { 1,1, 0,1, 0,0, 1,0,  0,1, 1,1, 1,0, 0,0 };
-    static GLfloat tex_rot270[2][4][2] = { 0,1, 0,0, 1,0, 1,1,  0,0, 0,1, 1,1, 1,0 };
 
     static Vertex rot0[ FLIP_TYPES_COUNT ][ VERTEX_COUNT ] = {{ Upper_Left, Upper_Right, Lower_Right, Lower_Left }, { Upper_Right, Upper_Left, Lower_Left, Lower_Right }};
     static Vertex rot90[ FLIP_TYPES_COUNT ][ VERTEX_COUNT ] = {{ Upper_Right, Lower_Right, Lower_Left, Upper_Left }, { Lower_Right, Upper_Right, Upper_Left, Lower_Left }};
@@ -242,8 +236,8 @@ void face_draw( const block_binary_info& block, const Geometry& geometry, const 
         default : break;
     }
 
-    /// move block such that origin is in centre, and shift vertically (for multi-part slopes)
-    glTranslatef( -0.5f, -0.5f, -0.5f + geometry.vertical_offset );
+    /// move block such that origin is in centre
+    glTranslatef( -0.5f, -0.5f, -0.5f );
 
     /// zero texture is always invisible
     if ( texture_id != 0 )
@@ -263,28 +257,27 @@ void face_draw( const block_binary_info& block, const Geometry& geometry, const 
                 );
             }
 
-            for ( unsigned int quad_vertex = Upper_Left; quad_vertex != VERTEX_COUNT; quad_vertex += 1 )
+            for ( unsigned int quad_vertex = Upper_Left; quad_vertex != VERTEX_COUNT; ++quad_vertex )
             {
-                GLfloat (*tex_coord)[4][2];
+                Vertex (*rot)[ FLIP_TYPES_COUNT ][ VERTEX_COUNT ];
                 switch ( rotation_value )
                 {
-                    case 0 : tex_coord = tex_rot0; break;
-                    case 1 : tex_coord = tex_rot90; break;
-                    case 2 : tex_coord = tex_rot180; break;
-                    case 3 : tex_coord = tex_rot270; break;
+                    case 0 : rot = &rot0; break;
+                    case 1 : rot = &rot90; break;
+                    case 2 : rot = &rot180; break;
+                    case 3 : rot = &rot270; break;
                 }
 
-                Vertex (*rot)[ FLIP_TYPES_COUNT ][ VERTEX_COUNT ];
 
-                glTexCoord2f(
+  /*              glTexCoord2f(
                     tex_coord[ flip_type ][ quad_vertex ][0],
                     tex_coord[ flip_type ][ quad_vertex ][1]
                 );
+*/
+                Coord3f coords = coord_at( geometry, face, Vertex( quad_vertex ));
+                Coord2f tex_coords = tex_coord_at( geometry, face, (*rot)[ xflip ][ quad_vertex ] );
 
-                Coord3f coords = coord_at( geometry.shape_type, face, Vertex( quad_vertex ));
-                Coord2f tex_coords = tex_coord_at( face, coords );
-
-     //           glTexCoord2f( tex_coords.x, tex_coords.y );
+                glTexCoord2f( tex_coords.x, tex_coords.y );
                 glVertex3f( coords.x, coords.y, coords.z );
             }
         glEnd();

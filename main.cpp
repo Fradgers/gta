@@ -232,9 +232,9 @@ int main( int argc, char** argv )
     Style style( stream );
     stream.close();
 
-    Vec3 camera( 93.0f, 196.0f, 10.0f );
+    Vec3 camera( 93.0f, 196.0f, 20.0f );
     enum Cameras { Map = 0, Aerial_NW, Aerial_SE, Rooftop_NW, Rooftop_SE, Street, CAMERA_COUNT }
-        camera_angle = Map;
+        camera_angle = Aerial_SE;
     //Vec3 camera( 0.0f, 0.0f, 130.0f );
 
  //   Texture_Collection textures;
@@ -254,7 +254,7 @@ int main( int argc, char** argv )
 
         if ( glfwGetKey( GLFW_KEY_LEFT )) {  camera += Vec3(  0.8f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
         if ( glfwGetKey( GLFW_KEY_RIGHT )){ camera += Vec3( -0.8f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_UP ))  {camera += Vec3(  0.0f, 0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_UP ))  { camera += Vec3(  0.0f, 0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
         if ( glfwGetKey( GLFW_KEY_DOWN )){ camera += Vec3( 0.0f, -0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
 
 
