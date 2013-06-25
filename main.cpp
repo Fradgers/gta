@@ -232,7 +232,9 @@ int main( int argc, char** argv )
     Style style( stream );
     stream.close();
 
-    Vec3 camera( 93.0f, 196.0f, 50.0f );
+    Vec3 camera( 93.0f, 196.0f, 10.0f );
+    enum Cameras { Map = 0, Aerial_NW, Aerial_SE, Rooftop_NW, Rooftop_SE, Street, CAMERA_COUNT }
+        camera_angle = Map;
     //Vec3 camera( 0.0f, 0.0f, 130.0f );
 
  //   Texture_Collection textures;
@@ -255,8 +257,27 @@ int main( int argc, char** argv )
         if ( glfwGetKey( GLFW_KEY_UP ))  {camera += Vec3(  0.0f, 0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
         if ( glfwGetKey( GLFW_KEY_DOWN )){ camera += Vec3( 0.0f, -0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
 
-        glRotatef( 0, 1.0f, 0.0f, 0.0f );
-        glRotatef(-135, 0.0f, 0.0f, 1.0f );
+
+
+        GLfloat camera_angles[CAMERA_COUNT][4] = {
+            -135.0f, -0.5f, -0.5f, -0.95f,
+            180.0f, 0.0f, 0.0f, 0.1f,
+            180.0f, 0.0f, 0.0f, 0.1f,
+            -135, 1.0f, 0.0f, 1.0f,
+            0, 0.0f, 0.0f, 0.0f,
+            0, 0.0f, 0.0f, 0.0f
+        };
+
+        if ( glfwGetKey( GLFW_KEY_F1 )) {  camera_angle = Map; }
+        if ( glfwGetKey( GLFW_KEY_F2 )) {  camera_angle = Aerial_NW; }
+        if ( glfwGetKey( GLFW_KEY_F3 )) {  camera_angle = Aerial_SE; }
+        if ( glfwGetKey( GLFW_KEY_F4 )) {  camera_angle = Rooftop_NW; }
+        if ( glfwGetKey( GLFW_KEY_F5 )) {  camera_angle = Rooftop_SE; }
+        if ( glfwGetKey( GLFW_KEY_F6 )) {  camera_angle = Street; }
+
+        //glRotatef( 180, 0.0f, 0.0f, 1.0f );
+        glRotatef( camera_angles[camera_angle][ 0 ], camera_angles[camera_angle][ 1 ], camera_angles[camera_angle][2], camera_angles[camera_angle][3] );
+        //glRotatef(-135, 0.5f, 0.5f, 1.0f );
         glTranslatef( -camera.x, -camera.y, -camera.z );
 
         /*glBegin(GL_QUADS);

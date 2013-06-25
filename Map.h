@@ -1,38 +1,36 @@
 
 #include "binary_reader.h"
 #include "OpenGL.h"
+/*
+enum Shape {
+    /// standard cube
+    Default = 0, // 0
+    /// 26 slopes
+    North26_1, North26_2, South26_1, South26_2, West26_1, West26_2, East26_1, East25_2, // 1-8
+    /// 7 slopes
+    North7_1, North7_2, North7_3, North7_4, North7_5, North7_6, North7_7, North7_8, // 9-16
+    South7_1, South7_2, South7_3, South7_4, South7_5, South7_6, South7_7, South7_8, // 17-24
+    West7_1, West7_2, West7_3, West7_4, West7_5, West7_6, West7_7, West7_8, // 25-32
+    East7_1, East7_2, East7_3, East7_4, East7_5, East7_6, East7_7, East7_8, // 33-40
+    /// 45 slopes
+    North45, South45, West45, East45, // 41-44
+    /// diagonals
+    Diagonal_NW, Diagonal_NE, Diagonal_SW, Diagonal_SE, // 45-48
+    /// diagonal slopes
+    Diagonal_Slope_NW, Diagonal_Slope_NE, Diagonal_Slope_SW, Diagonal_Slope_SE, // 49-52
+    /// partial blocks
+    Partial_W, Partial_E, Partial_N, Partial_S,
+    Partial_NW, Partial_NE, Partial_SE, Partial_SW, // 53-60
+    Partial_Centre, // 61
+    /// internal use
+    Reserved, Under_Slope // 62-63
+};*/
 
-    enum Shape {
-        /// standard cube
-        Default = 0, // 0
-        /// 26 slopes
-        North26_1, North26_2, South26_1, South26_2, West26_1, West26_2, East26_1, East25_2, // 1-8
-        /// 7 slopes
-        North7_1, North7_2, North7_3, North7_4, North7_5, North7_6, North7_7, North7_8, // 9-16
-        South7_1, South7_2, South7_3, South7_4, South7_5, South7_6, South7_7, South7_8, // 17-24
-        West7_1, West7_2, West7_3, West7_4, West7_5, West7_6, West7_7, West7_8, // 25-32
-        East7_1, East7_2, East7_3, East7_4, East7_5, East7_6, East7_7, East7_8, // 33-40
-        /// 45 slopes
-        North45, South45, West45, East45, // 41-44
-        /// diagonals
-        Diagonal_NW, Diagonal_NE, Diagonal_SW, Diagonal_SE, // 45-48
-        /// diagonal slopes
-        Diagonal_Slope_NW, Diagonal_Slope_NE, Diagonal_Slope_SW, Diagonal_Slope_SE, // 49-52
-        /// partial blocks
-        Partial_W, Partial_E, Partial_N, Partial_S,
-        Partial_NW, Partial_NE, Partial_SE, Partial_SW, // 53-60
-        Partial_Centre, // 61
-        /// internal use
-        Reserved, Under_Slope // 62-63
-    };
-
-    enum Orientation { zero_degrees = 0, ninety_degrees, one_eighty_degrees, two_seventy_degrees };
+enum Orientation { zero_degrees = 0, ninety_degrees, one_eighty_degrees, two_seventy_degrees };
+enum Block_Face { Left = 0, Right, Rear, Front, Lid };
 
 class block_binary_info {
 public:
-    enum Block_Face { Left = 0, Right, Rear, Front, Lid };
-
-
     enum Face_Lighting { None = 0, Low, Medium, High };
 
     block_binary_info( std::istream& stream )
@@ -47,10 +45,6 @@ public:
         arrows = block_reader.as<uint8_t>( 10 ); // [1b]
         slope_type = block_reader.as<uint8_t>( 11 ); // [1b]
     }
-
-    ///                                             8   4   2   1   0
-    /// 15  14  13  12  11  10  9   8   7   6   5   4   3   2   1   0
-    ///
 
     uint16_t face_texture( const Block_Face& face ) const
     {
@@ -87,18 +81,6 @@ public:
            default : return Medium;
         }
     }
-/*
-    Orientation geometry_rotation()
-    {
-        switch (( slope_type >> 2 ) & 0x3F )
-        {
-            case Cube :
-            case North26_1 :
-                return zero_degrees;
-            default :
-                return two_seventy_degrees;
-        }
-    }*/
 
     uint16_t faces[5]; // left, right, rear, front, lid;
     uint8_t arrows;
