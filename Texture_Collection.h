@@ -45,7 +45,7 @@ public:
         return texture_name;
     }
 
-    Texture_Name load_texture( uint32_t* data )
+    Texture_Name load_texture( uint32_t* data, uint8_t width = 64, uint8_t height = 64 )
     {
         Texture_Name texture_name( 0 );
         glGenTextures( 1, &texture_name );
@@ -53,9 +53,13 @@ public:
         glEnable( GL_TEXTURE_2D );
         glBindTexture( GL_TEXTURE_2D, texture_name );
 
-        glTexImage2D( GL_TEXTURE_2D, 0, 4, 64, 64, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
+        ///glTexImage2D( GL_TEXTURE_2D, 0, 4, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
+        ///glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
 
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        gluBuild2DMipmaps( GL_TEXTURE_2D, 4, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, data );
+
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1 );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
         glDisable( GL_TEXTURE_2D );
 

@@ -1,4 +1,5 @@
 #include "Texture_Collection.h"
+#include <sstream>
 
 class tile_reader {
 public:
@@ -8,6 +9,20 @@ public:
 
     std::stringstream color_index_data;
 };
+
+
+class palb_reader {
+public:
+    palb_reader( std::istream& stream )
+    {
+        tile_palette_base = 0;
+        sprite_palette_base = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + tile_palette_base;
+    }
+
+    uint16_t tile_palette_base;
+    uint16_t sprite_palette_base;
+};
+
 
 class palx_reader {
 public:
@@ -42,6 +57,9 @@ public:
 
                 binary_reader pixel( stream, 4 );
                 ppalettes[ col ][ pal ] = (( pixel.data[0]&0xFF) << 24 ) + ( ( pixel.data[1]&0xFF) << 16 ) + ( ( pixel.data[2]&0xFF) << 8 ) + ( alpha_value );
+
+                // debug code !!! REMOVE ME !!!
+                //if ( col == 0 ) ppalettes[col][pal] = 0xFFFFFFFF;
             }
     }
 
@@ -55,49 +73,168 @@ public:
 
 #include <iomanip>
 
-class Tiles {
+
+class sprb_reader {
 public:
-    Texture_Collection::Texture_Name placeholder_texture;
-    Tiles()
+    sprb_reader( std::istream& stream )
     {
-        placeholder_texture = textures.load_texture( "placeholder.tga" );
-        depaletted_pixels = new uint32_t[ 4*64 * 4*64 * 62 ];
+        // file holds sprite count for each category, here we convert to a sprite offset for each category
+        car_sprite_base = 0;
+        ped_sprite_base = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + car_sprite_base;
+        code_obj_sprite_base = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + ped_sprite_base;
+        map_obj_sprite_base = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + code_obj_sprite_base;
+        user_sprite_base = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + map_obj_sprite_base;
+        font_sprite_base = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + user_sprite_base;
+        end = binary_reader( stream, 2 ).as<uint16_t>( 0 ) + font_sprite_base;
     }
 
-    void combine( tile_reader* tile, ppal_reader* ppal, palx_reader* palx )
+    uint16_t car_sprite_base;
+    uint16_t ped_sprite_base;
+    uint16_t code_obj_sprite_base;
+    uint16_t map_obj_sprite_base;
+    uint16_t user_sprite_base;
+    uint16_t font_sprite_base;
+    uint16_t end;
+};
+
+
+class Car {
+public:
+    Car( std::istream& stream )
     {
-        // for each row of textures
-        for ( size_t texture_row = 0; texture_row != 4 * 62; ++texture_row )
+        binary_reader car_data( stream, 14 );
+
+        model = car_data.as<uint8_t>( 0 );
+        sprite = car_data.as<uint8_t>( 1 );
+        w = car_data.as<uint8_t>( 2 );
+        h = car_data.as<uint8_t>( 3 );
+        num_remaps = car_data.as<uint8_t>( 4 );
+
+        binary_reader( stream, num_remaps ); // ignore remaps
+        num_doors = binary_reader( stream, 1 ).as<uint8_t>( 0 );
+        binary_reader( stream, num_doors*2 ); // ignore doors
+    }
+
+    void print()
+    {
+        std::cout << "Model(" << (int)model << ") ";
+        std::cout << "Sprite(" << (int)sprite << ") ";
+        std::cout << "w(" << (int)w << ") ";
+        std::cout << "h(" << (int)h << ") ";
+        std::cout << "Remaps(" << (int)num_remaps << ") ";
+        std::cout << "Doors(" << (int)num_doors << ") ";
+    }
+
+    uint8_t model;
+    uint8_t sprite;
+    uint8_t w;
+    uint8_t h;
+    uint8_t num_remaps;
+    uint8_t num_doors;
+};
+
+class cari_reader {
+public:
+    cari_reader( std::istream& stream )
+    {
+        uint8_t sprite_cumulative = 0;
+        while ( stream )
         {
-            // read 4 textures
-            for ( unsigned int pixel_row = 0; pixel_row != 64; ++pixel_row )
-            {
-                for ( unsigned int column = 0; column != 4*64; ++column )
-                {
-                    int texture_column = column / 64;
-                    int pixel_column = column - ( texture_column * 64 );
+            Car car( stream );
 
-                    int texture_idx = texture_row * 4 + texture_column;
-                    int pixel_idx = (63-pixel_row) * 64 + pixel_column;
+            // the sprite value in the file is the number of sprites used by the car
+            // we need the actual sprite index used by the car, given by sprite_cumulative
+            sprite_cumulative += car.sprite;
+            car.sprite = sprite_cumulative;
 
-                    uint8_t pixel = binary_reader( tile->color_index_data, 1 ).as<uint8_t>( 0 );
-                    depaletted_pixels[ (texture_idx*64*64) + pixel_idx ] = ppal->color_at( palx->ppalette( texture_idx ), pixel );
-                }
-            }
-
-            // after reading the 4 textures in the row of textures,
-            // load the 4 textures into opengl and save their texture names
-            for ( size_t texture_column = 0; texture_column != 4; ++texture_column )
-            {
-                int texture_idx = texture_row * 4 + texture_column;
-                texture_lookup[ texture_idx ] = textures.load_texture( depaletted_pixels + ( texture_idx*64*64 ));
-            }
+            cars.push_back( car );
+            //std::cout << "car " << cars.size() << ": ";
+            //car.print();
+            //std::cout << std::endl;
         }
     }
 
-    ~Tiles() { delete [] depaletted_pixels; }
+    std::vector<Car> cars;
+};
 
-    Texture_Collection textures;
-    Texture_Collection::Texture_Name texture_lookup[992]; ///992
-    uint32_t* depaletted_pixels;
+class Vehicles {
+public:
+    void combine( cari_reader* cari, sprb_reader* sprb )
+    {
+        for ( unsigned int car = 0; car != cari->cars.size(); ++car )
+        {
+            cari->cars[ car ].sprite += sprb->car_sprite_base;
+        }
+    }
+};
+
+class sprite_index {
+public:
+    sprite_index( std::istream& stream )
+    {
+        binary_reader pointer_data( stream, 4 );
+        ptr = pointer_data.as<uint32_t>( 0 );
+
+        binary_reader dimension_data( stream, 4 );
+        w = dimension_data.as<uint8_t>( 0 );
+        h = dimension_data.as<uint8_t>( 1 );
+        // bytes 6 and 7 ignored (padding)
+    }
+
+    void print()
+    {
+        std::cout << "Width(" << (int)w << ") ";
+        std::cout << "Height(" << (int)h << ") ";
+    }
+
+    uint32_t ptr;
+    uint8_t w;
+    uint8_t h;
+};
+
+class sprx_reader {
+public:
+    sprx_reader( std::istream& stream )
+    {
+        while ( stream )
+        {
+            sprite_index index( stream );
+
+            sprite_indices.push_back( index );
+        }
+    }
+
+    std::vector<sprite_index> sprite_indices;
+};
+
+class sprg_reader {
+public:
+    sprg_reader( const std::string& raw_pixel_data )
+    :   indexed_pixels( raw_pixel_data.begin(), raw_pixel_data.end() )
+    { std::cout << "Pixel count: " << indexed_pixels.size() << std::endl; }
+
+    //uint8_t& at( uint32_t origin, uint8_t dx, uint8_t dy ) { return indexed_pixels[ origin + ( dy * 256 ) + dx ]; }
+    uint8_t at( uint32_t location ) { return indexed_pixels[ location ]; }
+
+    std::vector<uint8_t> indexed_pixels;
+};
+
+class object_data {
+public:
+    uint8_t model_number;
+    uint8_t sprite_count;
+};
+
+class obji_reader {
+public:
+    obji_reader( std::istream& stream )
+    {
+        object_data obj;
+
+        stream >> obj.model_number >> obj.sprite_count;
+
+        objects.push_back( obj );
+    }
+
+    std::vector<object_data> objects;
 };

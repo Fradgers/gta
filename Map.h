@@ -1,9 +1,11 @@
+#ifndef _MAP_H_
 
 #include "binary_reader.h"
 #include "OpenGL.h"
 
 enum Orientation { zero_degrees = 0, ninety_degrees, one_eighty_degrees, two_seventy_degrees };
 enum Block_Face { Rear = 0, Right, Front, Left, Lid };
+
 
 class block_binary_info {
 public:
@@ -63,9 +65,7 @@ public:
     uint8_t slope_type;
 };
 
-class Style;
 #include <vector>
-#include "Vec3.h"
 class dmap_column_binary_info {
 public:
     dmap_column_binary_info( std::istream& stream )
@@ -88,13 +88,14 @@ public:
         }
     }
 
-    void draw( const std::vector<block_binary_info>& block_info, const Style& style, Vec3& coords );
+
 
     uint8_t height;
     uint8_t offset;
     uint16_t padding;
     std::vector<uint32_t> blockd;
 };
+
 
 #include <map>
 #include <sstream>
@@ -132,38 +133,75 @@ public:
         }
     }
 
-
-    /// change draw order to spiral around viewer
-    void draw( const Style& style, const Vec3& camera )
-    {
-        for ( unsigned int z = 0; z != 7; ++z )
-        {
-            /// 0 to 256
-            for ( int x = 0; x != 256; ++x )
-            {
-                for ( unsigned int y = 0; y != 256; ++y )
-                {
-                    uint32_t column_index = base[ y*256 + x ];
-
-                    // map is defined bottom-to-top
-                    Vec3 coords = Vec3( x, 255-y, z );
-
-                    if ( column_index < columns_data_size_bytes )
-                    {
-                        glPushMatrix();
-                            columns.at( column_index ).draw( blocks, style, coords );
-                        glPopMatrix();
-                    }
-                    else
-                        std::cout << "(" << x << "," << y << ") column index: " << column_index << "/" << columns.size() << std::endl;
-                } // y
-            } // x
-        } // z
-    }
-
     std::vector<int32_t> base;
     uint32_t columns_data_size_bytes;
     std::map<uint32_t, dmap_column_binary_info> columns;
     uint32_t num_blocks;
     std::vector<block_binary_info> blocks;
 };
+
+
+class anim_data {
+public:
+    anim_data( std::istream& stream )
+    {
+        binary_reader anim( stream, 6 );
+
+        base_tile = anim.as<uint16_t>( 0 );
+        game_cycles_per_frame = anim.as<uint8_t>( 2 );
+        repeats = anim.as<uint8_t>( 3 );
+        frame_count = anim.as<uint8_t>( 4 );
+
+        for ( unsigned int fr = 0; fr != frame_count; ++fr )
+            frames.push_back( binary_reader( stream, 2 ).as<uint16_t>( 0 ));
+    }
+
+    uint16_t base_tile;
+    uint8_t game_cycles_per_frame;
+    uint8_t repeats;
+    uint8_t frame_count;
+
+    std::vector<uint16_t> frames;
+};
+
+
+class anim_reader {
+public:
+    anim_reader( std::istream& stream )
+    {
+        while ( stream )
+            animations.push_back( anim_data( stream ));
+    }
+
+    std::vector<anim_data> animations;
+};
+
+
+class mobj_data {
+public:
+    uint16_t x;
+    uint16_t y;
+    uint8_t rotation;
+    uint8_t object_type;
+};
+
+
+class mobj_reader {
+public:
+    mobj_reader( std::istream& stream )
+    {
+        mobj_data data;
+
+        stream >> data.x >> data.y >> data.rotation >> data.object_type;
+
+        map_objects.push_back( data );
+    }
+
+    std::vector<mobj_data> map_objects;
+};
+
+
+
+
+
+#endif
