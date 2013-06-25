@@ -217,6 +217,7 @@ int main( int argc, char** argv )
     if ( ! opengl.good() ) return -1;
 
     std::ifstream stream( "MP1-comp.gmp", ios::in | ios::binary );
+    ///std::ifstream stream( "wil.gmp", ios::in | ios::binary );
     if ( ! stream.is_open() )
         return -1;
 
@@ -224,13 +225,14 @@ int main( int argc, char** argv )
     stream.close();
 
     stream.open( "bil.sty", ios::in | ios::binary );
+    ///stream.open( "wil.sty", ios::in | ios::binary );
     if ( ! stream.is_open() )
         return -1;
 
     Style style( stream );
     stream.close();
 
-    Vec3 camera( 50.0f, 170.0f, 30.0f );
+    Vec3 camera( 93.0f, 196.0f, 50.0f );
     //Vec3 camera( 0.0f, 0.0f, 130.0f );
 
  //   Texture_Collection textures;
@@ -248,12 +250,13 @@ int main( int argc, char** argv )
         glMatrixMode( GL_MODELVIEW );
         glLoadIdentity();
 
-        if ( glfwGetKey( GLFW_KEY_LEFT ))  camera += Vec3(  0.8f, 0.0f, 0.0f );
-        if ( glfwGetKey( GLFW_KEY_RIGHT )) camera += Vec3( -0.8f, 0.0f, 0.0f );
-        if ( glfwGetKey( GLFW_KEY_UP ))  camera += Vec3(  0.0f, 0.8f, 0.0f );
-        if ( glfwGetKey( GLFW_KEY_DOWN )) camera += Vec3( 0.0f, -0.8f, 0.0f );
+        if ( glfwGetKey( GLFW_KEY_LEFT )) {  camera += Vec3(  0.8f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_RIGHT )){ camera += Vec3( -0.8f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_UP ))  {camera += Vec3(  0.0f, 0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_DOWN )){ camera += Vec3( 0.0f, -0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
 
-        glRotatef(-45, 1.0f, -1.0f, -1.0f );
+        glRotatef( 0, 1.0f, 0.0f, 0.0f );
+        glRotatef(-135, 0.0f, 0.0f, 1.0f );
         glTranslatef( -camera.x, -camera.y, -camera.z );
 
         /*glBegin(GL_QUADS);

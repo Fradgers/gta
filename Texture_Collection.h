@@ -2,10 +2,10 @@
 #define _TEXTURE_COLLECTION_H_
 
 #include "OpenGL.h"
-#include <GL/glext.h>
 
 #include <map>
 #include <string>
+#include <stdint.h>
 
 class Texture_Collection {
 public:
@@ -47,8 +47,6 @@ public:
 
     Texture_Name load_texture( uint32_t* data )
     {
-        //GLFWimage img;
-
         Texture_Name texture_name( 0 );
         glGenTextures( 1, &texture_name );
 

@@ -73,7 +73,7 @@ public:
                     int pixel_column = column - ( texture_column * 64 );
 
                     int texture_idx = texture_row * 4 + texture_column;
-                    int pixel_idx = pixel_row * 64 + pixel_column;
+                    int pixel_idx = (63-pixel_row) * 64 + pixel_column;
 
                     uint8_t pixel = binary_reader( tile->color_index_data, 1 ).as<uint8_t>( 0 );
                     depaletted_pixels[ (texture_idx*64*64) + pixel_idx ] = ppal->color_at( palx->ppalette( texture_idx ), pixel );
