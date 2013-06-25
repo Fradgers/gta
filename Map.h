@@ -1,33 +1,9 @@
 
 #include "binary_reader.h"
 #include "OpenGL.h"
-/*
-enum Shape {
-    /// standard cube
-    Default = 0, // 0
-    /// 26 slopes
-    North26_1, North26_2, South26_1, South26_2, West26_1, West26_2, East26_1, East25_2, // 1-8
-    /// 7 slopes
-    North7_1, North7_2, North7_3, North7_4, North7_5, North7_6, North7_7, North7_8, // 9-16
-    South7_1, South7_2, South7_3, South7_4, South7_5, South7_6, South7_7, South7_8, // 17-24
-    West7_1, West7_2, West7_3, West7_4, West7_5, West7_6, West7_7, West7_8, // 25-32
-    East7_1, East7_2, East7_3, East7_4, East7_5, East7_6, East7_7, East7_8, // 33-40
-    /// 45 slopes
-    North45, South45, West45, East45, // 41-44
-    /// diagonals
-    Diagonal_NW, Diagonal_NE, Diagonal_SW, Diagonal_SE, // 45-48
-    /// diagonal slopes
-    Diagonal_Slope_NW, Diagonal_Slope_NE, Diagonal_Slope_SW, Diagonal_Slope_SE, // 49-52
-    /// partial blocks
-    Partial_W, Partial_E, Partial_N, Partial_S,
-    Partial_NW, Partial_NE, Partial_SE, Partial_SW, // 53-60
-    Partial_Centre, // 61
-    /// internal use
-    Reserved, Under_Slope // 62-63
-};*/
 
 enum Orientation { zero_degrees = 0, ninety_degrees, one_eighty_degrees, two_seventy_degrees };
-enum Block_Face { Left = 0, Right, Rear, Front, Lid };
+enum Block_Face { Rear = 0, Right, Front, Left, Lid };
 
 class block_binary_info {
 public:
@@ -36,10 +12,10 @@ public:
     block_binary_info( std::istream& stream )
     {
         binary_reader block_reader( stream, 12 );
-        faces[Right] = block_reader.as<uint16_t>( 0 ); // [2b]
-        faces[Left] = block_reader.as<uint16_t>( 2 ); // [2b]
-        faces[Front] = block_reader.as<uint16_t>( 4 ); // [2b]
-        faces[Rear] = block_reader.as<uint16_t>( 6 ); // [2b]
+        faces[Left] = block_reader.as<uint16_t>( 0 ); // [2b]
+        faces[Right] = block_reader.as<uint16_t>( 2 ); // [2b]
+        faces[Rear] = block_reader.as<uint16_t>( 4 ); // [2b]
+        faces[Front] = block_reader.as<uint16_t>( 6 ); // [2b]
         faces[Lid] = block_reader.as<uint16_t>( 8 ); // [2b]
 
         arrows = block_reader.as<uint8_t>( 10 ); // [1b]
@@ -82,13 +58,14 @@ public:
         }
     }
 
-    uint16_t faces[5]; // left, right, rear, front, lid;
+    uint16_t faces[5]; // rear, right, front, left, lid
     uint8_t arrows;
     uint8_t slope_type;
 };
 
 class Style;
 #include <vector>
+#include "Vec3.h"
 class dmap_column_binary_info {
 public:
     dmap_column_binary_info( std::istream& stream )
@@ -111,7 +88,7 @@ public:
         }
     }
 
-    void draw( const std::vector<block_binary_info>& block_info, const Style& style );
+    void draw( const std::vector<block_binary_info>& block_info, const Style& style, Vec3& coords );
 
     uint8_t height;
     uint8_t offset;
@@ -157,25 +134,31 @@ public:
 
 
     /// change draw order to spiral around viewer
-    void draw( const Style& style )
+    void draw( const Style& style, const Vec3& camera )
     {
-        for ( int x = 0; x != 256; ++x )
+        for ( unsigned int z = 0; z != 7; ++z )
         {
-            for ( unsigned int y = 0; y != 256; ++y )
+            /// 0 to 256
+            for ( int x = 0; x != 256; ++x )
             {
-                uint32_t column_index = base[ y*256 + x ];
-
-                if ( column_index < columns_data_size_bytes )
+                for ( unsigned int y = 0; y != 256; ++y )
                 {
-                    glPushMatrix();
-                        glTranslatef( x, y, 0.0f );
-                        columns.at( column_index ).draw( blocks, style );
-                    glPopMatrix();
-                }
-                else
-                    std::cout << "(" << x << "," << y << ") column index: " << column_index << "/" << columns.size() << std::endl;
-            }
-        }
+                    uint32_t column_index = base[ y*256 + x ];
+
+                    // map is defined bottom-to-top
+                    Vec3 coords = Vec3( x, 255-y, z );
+
+                    if ( column_index < columns_data_size_bytes )
+                    {
+                        glPushMatrix();
+                            columns.at( column_index ).draw( blocks, style, coords );
+                        glPopMatrix();
+                    }
+                    else
+                        std::cout << "(" << x << "," << y << ") column index: " << column_index << "/" << columns.size() << std::endl;
+                } // y
+            } // x
+        } // z
     }
 
     std::vector<int32_t> base;

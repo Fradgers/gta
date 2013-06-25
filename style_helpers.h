@@ -57,7 +57,12 @@ public:
 
 class Tiles {
 public:
-    Tiles() { depaletted_pixels = new uint32_t[ 4*64 * 4*64 * 62 ]; }
+    Texture_Collection::Texture_Name placeholder_texture;
+    Tiles()
+    {
+        placeholder_texture = textures.load_texture( "placeholder.tga" );
+        depaletted_pixels = new uint32_t[ 4*64 * 4*64 * 62 ];
+    }
 
     void combine( tile_reader* tile, ppal_reader* ppal, palx_reader* palx )
     {
@@ -93,6 +98,6 @@ public:
     ~Tiles() { delete [] depaletted_pixels; }
 
     Texture_Collection textures;
-    Texture_Collection::Texture_Name texture_lookup[992];
+    Texture_Collection::Texture_Name texture_lookup[992]; ///992
     uint32_t* depaletted_pixels;
 };

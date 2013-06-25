@@ -200,9 +200,9 @@ public:
         }
     }
 
-    void draw( const Style& style )
+    void draw( const Style& style, const Vec3& camera )
     {
-        if ( dmap ) dmap->draw( style );
+        if ( dmap ) dmap->draw( style, camera );
     }
 
     ~Map() { delete dmap; }
@@ -232,7 +232,7 @@ int main( int argc, char** argv )
     Style style( stream );
     stream.close();
 
-    Vec3 camera( 93.0f, 196.0f, 20.0f );
+    Vec3 camera( 73.5f, 80.0f, 15.0f );
     enum Cameras { Map = 0, Aerial_NW, Aerial_SE, Rooftop_NW, Rooftop_SE, Street, CAMERA_COUNT }
         camera_angle = Aerial_SE;
     //Vec3 camera( 0.0f, 0.0f, 130.0f );
@@ -244,6 +244,9 @@ int main( int argc, char** argv )
     //Textured_Cube cube1( Vec3( 1.0f, -2.0f, -1.0f ), Vec3( 1,1,1 ), tex1 );
     //Textured_Cube cube2( Vec3( 1.0f, -2.0f, 0.0f ), Vec3( 1,1,1 ), tex2 ) ;
 
+    glFrontFace( GL_CCW );
+    glEnable(GL_CULL_FACE);
+
     while ( ! glfwGetKey( GLFW_KEY_ESC ) )
     {
         //glClearColor( 0.8f, 0.5f, 0.5f, 0.0f );
@@ -252,11 +255,15 @@ int main( int argc, char** argv )
         glMatrixMode( GL_MODELVIEW );
         glLoadIdentity();
 
-        if ( glfwGetKey( GLFW_KEY_LEFT )) {  camera += Vec3(  0.8f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_RIGHT )){ camera += Vec3( -0.8f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_UP ))  { camera += Vec3(  0.0f, 0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_DOWN )){ camera += Vec3( 0.0f, -0.8f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_LEFT )) {  camera += Vec3(  -0.03f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_RIGHT )){ camera += Vec3( 0.03f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_UP ))  { camera += Vec3(  0.0f, 0.03f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_DOWN )){ camera += Vec3( 0.0f, -0.03f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
 
+        if ( glfwGetKey( GLFW_KEY_KP_4 )) {  camera += Vec3(  -0.5f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_KP_6 )){ camera += Vec3( 0.5f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_KP_8 ))  { camera += Vec3(  0.0f, 0.5f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        if ( glfwGetKey( GLFW_KEY_KP_2 )){ camera += Vec3( 0.0f, -0.5f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
 
 
         GLfloat camera_angles[CAMERA_COUNT][4] = {
@@ -276,7 +283,7 @@ int main( int argc, char** argv )
         if ( glfwGetKey( GLFW_KEY_F6 )) {  camera_angle = Street; }
 
         //glRotatef( 180, 0.0f, 0.0f, 1.0f );
-        glRotatef( camera_angles[camera_angle][ 0 ], camera_angles[camera_angle][ 1 ], camera_angles[camera_angle][2], camera_angles[camera_angle][3] );
+        ///glRotatef( camera_angles[camera_angle][ 0 ], camera_angles[camera_angle][ 1 ], camera_angles[camera_angle][2], camera_angles[camera_angle][3] );
         //glRotatef(-135, 0.5f, 0.5f, 1.0f );
         glTranslatef( -camera.x, -camera.y, -camera.z );
 
@@ -289,7 +296,7 @@ int main( int argc, char** argv )
         glEnd();*/
 
         /// draw here
-        map.draw( style );
+        map.draw( style, camera );
         //style.draw();
 
         glfwSwapBuffers();

@@ -46,6 +46,7 @@
 		<Unit filename="Vec3.cpp" />
 		<Unit filename="Vec3.h" />
 		<Unit filename="binary_reader.h" />
+		<Unit filename="geometry_data.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="style_helpers.h" />
 		<Extensions>
