@@ -4,6 +4,8 @@
 #include "Tiles.h"
 #include "Collision_System.h"
 
+GLfloat depth = 40.0f;
+
 using namespace std;
 
 /** TODO:
@@ -54,16 +56,14 @@ int main( int argc, char** argv )
     City city;
     Tiles tiles;
 
-    Object obj1;
+    Car2D car( Vec3(76.5f,83.0f,2.0f), Vec3(1.0f,2.0f,0.0f) );
     GLfloat camera_orientation = 0.0f;
 
     load_files( "data/bil.sty", "data/MP1-comp.gmp", &sprites, &tiles, &city );
-    Vec3 camera( 76.5f, 83.0f,12.0f );
+    Vec3 camera( 0.0f, 0.0f, 12.0f );
 
-    //load_files( "wil.sty", "wil.gmp", &sprites, &tiles, &city );
+    //load_files( "data/wil.sty", "data/wil.gmp", &sprites, &tiles, &city );
     //Vec3 camera( 168.5f,96.5f,12.0f );
-
-    Collision_System collisions( &obj1, &city );
 
     glFrontFace( GL_CCW );
     glEnable( GL_CULL_FACE );
@@ -96,44 +96,25 @@ int main( int argc, char** argv )
         glMatrixMode( GL_MODELVIEW );
         glLoadIdentity();
 
-        if ( glfwGetKey( GLFW_KEY_RIGHT )){ camera += Vec3( 0.03f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_LEFT )) {  camera += Vec3(  -0.03f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_UP ))  { camera += Vec3(  0.0f, 0.03f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_DOWN )){ camera += Vec3( 0.0f, -0.03f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
+        camera_orientation = car.orientation();
+        glRotatef( camera_orientation, 0.0f,0.0f,1.0f );
 
-        if ( glfwGetKey( GLFW_KEY_KP_6 )){ camera += Vec3( 0.5f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_KP_4 )) {  camera += Vec3(  -0.5f, 0.0f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_KP_8 ))  { camera += Vec3(  0.0f, 0.5f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-        if ( glfwGetKey( GLFW_KEY_KP_2 )){ camera += Vec3( 0.0f, -0.5f, 0.0f ); std::cout << "(" << camera.x << "," << camera.y << "," << camera.z << ")" << endl;}
-
-        if ( glfwGetKey( GLFW_KEY_KP_ADD ))      camera += Vec3( 0, 0, ( camera.z > 10.0f ) ? -1.0f : 0.0f );
-        if ( glfwGetKey( GLFW_KEY_KP_SUBTRACT )) camera += Vec3( 0, 0, ( camera.z < 50.0f ) ?  1.0f : 0.0f );
-
-        if ( glfwGetKey( 'D' )) obj1.angle -= 0.5f;
-        if ( glfwGetKey( 'A' )) obj1.angle += 0.5f;
-        if ( glfwGetKey( 'W' )) obj1.pos += obj1.movement_vector();
-        if ( glfwGetKey( 'S' )) obj1.pos -= obj1.movement_vector();
-
-        tiles.update_animations();
-
-        ///camera = obj1.position + Vec3( 0, 0, 15.0f );
-        ///GLfloat camera_orientation = obj1.angle;
-        ///glRotatef( camera_orientation, 0, 0, 1 );
-
-        /// draw here
-        //glRotatef( -35.0f, 1.0f, 0,0 );
-
-        camera = Vec3( obj1.pos.x, obj1.pos.y, camera.z );
-        //camera_orientation = obj1.angle;
-
-        glRotatef( camera_orientation, 0,0,1.0f );
+        depth = std::min( 30.0f, std::max( 20.0f, car.get_velocity().magnitude() * 1.0f ));
+        camera = car.position() + Vec3( 0.0f, 0.0f, depth ) + car.forward_unit_vector() * 2.0f;
         glTranslatef( -camera.x, -camera.y, -camera.z );
 
         city.draw( tiles, camera );
-        obj1.draw( sprites );
-        obj1.collision_volume().draw();
+        car.draw( sprites );
+        car.update(0.02f);
 
-        collisions.run_collisions();
+        car.centre_steering();
+
+        if ( glfwGetKey( 'W' )) car.accelerate();
+        if ( glfwGetKey( 'S' )) car.brake();
+        if ( glfwGetKey( 'D' )) car.steer(3.0f);
+        if ( glfwGetKey( 'A' )) car.steer(-3.0f);
+
+        tiles.update_animations();
 
         glfwSwapBuffers();
     }

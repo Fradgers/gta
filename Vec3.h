@@ -5,6 +5,7 @@
 #include <cmath>
 
 const float deg_to_rad = 3.1416f / 180.0f;
+const float rad_to_deg = 1.0f / deg_to_rad;
 
 class Vec3 {
 public:
@@ -33,6 +34,15 @@ public:
         x -= rhs.x;
         y -= rhs.y;
         z -= rhs.z;
+
+        return *this;
+    }
+
+    Self& operator*=( const Self& rhs )
+    {
+        x *= rhs.x;
+        y *= rhs.y;
+        z *= rhs.z;
 
         return *this;
     }
@@ -89,13 +99,11 @@ public:
 std::ostream& operator<<( std::ostream& stream, const Vec3& vec );
 
 Vec3 operator+( const Vec3& lhs, const Vec3& rhs );
-
 Vec3 operator-( const Vec3& lhs, const Vec3& rhs );
+Vec3 operator*( const Vec3& lhs, const Vec3& rhs );
 
 Vec3 operator*( const Vec3& lhs, const float& rhs );
-
 Vec3 operator/( const Vec3& lhs, const float& rhs );
-
 Vec3 operator*( const float& lhs, const Vec3& rhs );
 
 #endif
