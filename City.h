@@ -196,18 +196,16 @@ void face_draw( const Map_Block& block, const Block_Face& side, const Tiles& til
     }
 }
 
-#include "Collision_Volume.h"
+#include "CollisionResolver.h"
 
 class Map_Column : public ICollidable {
 public:
     Map_Column()
-    :   ICollidable( Vec3(76,83,2) ),
-        bottom( 0 ),
+    :   bottom( 0 ),
         top( 0 )
     { ; }
 
     Map_Column( uint8_t height, uint8_t offset )
-    :   ICollidable(Vec3(84,75,2))
     {
         bottom = offset;
         top = height;
@@ -231,10 +229,10 @@ public:
     }
 
 
-    Collision::Collision_Volume collision_volume() const
+     Collision_Volume collision_volume() const
     {
         std::vector<Vec3> vertices;
-
+/*
         Vec3 X( 0.5f, 0, 0 );
         Vec3 Y( 0, 0.5f, 0 );
 
@@ -242,22 +240,29 @@ public:
         vertices.push_back( pos + X - Y ); // [1]
         vertices.push_back( pos + X + Y );
         vertices.push_back( pos - X + Y ); // [3]
+*/
+        std::vector<SeparatingAxis> axes;
 
-        std::vector<Collision::Axis> axes;
+  //      axes.push_back( Collision::Axis( Vec3( 1,0,0 ), vertices ));
+  //      axes.push_back( Collision::Axis( Vec3( 0,1,0 ), vertices ));
 
-        axes.push_back( Collision::Axis( Vec3( 1,0,0 ), vertices ));
-        axes.push_back( Collision::Axis( Vec3( 0,1,0 ), vertices ));
-
-        return Collision::Collision_Volume( axes, vertices );
+        return Collision_Volume( axes, vertices );
     }
 
-    virtual void collision_response( const Collision::Physics_Data& ) { ; }
+    //virtual void collision_response( const Collision::Physics_Data& ) { ; }
 
     virtual ~Map_Column() { ; }
 
-    void position( const Vec3& new_pos ) { pos = new_pos; }
+     void draw( const Sprites& ) const { ; }
+     Vec3 position() const { return pos; }
+     void position( const Vec3& p ) { pos = p; }
+    //virtual void move_by( const Vec3& vec ) = 0;
+     std::string type_name() const { return "Map_Column"; };
+
+    //void position( const Vec3& new_pos ) { pos = new_pos; }
     void add_block( uint32_t block ) { block_indices.push_back( block ); }
 
+    Vec3 pos;
     uint8_t bottom;
     uint8_t top;
     std::vector<uint32_t> block_indices;

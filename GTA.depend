@@ -47,10 +47,12 @@
 1270152890 source:c:\martyn\code\paul\gta\vec3.cpp
 	"Vec3.h"
 
-1381348036 source:c:\users\paul-desktop\desktop\innersanctum\gta\main.cpp
+1381355662 source:c:\users\paul-desktop\desktop\innersanctum\gta\main.cpp
 	<fstream>
 	"Tiles.h"
-	"Collision_System.h"
+	"Objects.h"
+	"City.h"
+	"CollisionResolver.h"
 
 1270163690 c:\users\paul-desktop\desktop\innersanctum\gta\sprite.h
 	<vector>
@@ -128,20 +130,45 @@
 	"Objects.h"
 	"City.h"
 
-1381347692 c:\users\paul-desktop\desktop\innersanctum\gta\objects.h
+1381354404 c:\users\paul-desktop\desktop\innersanctum\gta\objects.h
 	"Sprites.h"
 	"Vec3.h"
 	<boost/foreach.hpp>
+	"CollisionResolver.h"
 
-1286199144 c:\users\paul-desktop\desktop\innersanctum\gta\sprites.h
+1381353985 c:\users\paul-desktop\desktop\innersanctum\gta\sprites.h
 	"Style.h"
 
-1381175049 c:\users\paul-desktop\desktop\innersanctum\gta\city.h
+1381354022 c:\users\paul-desktop\desktop\innersanctum\gta\city.h
 	"geometry_data.h"
 	<cmath>
 	"Vec3.h"
-	"Collision_Volume.h"
+	"CollisionResolver.h"
 	<boost/array.hpp>
 
 1282215944 c:\users\paul-desktop\desktop\innersanctum\gta\geometry_data.h
+
+1381354534 source:c:\users\paul-desktop\desktop\innersanctum\gta\collisionresolver.cpp
+	"CollisionResolver.h"
+	"Objects.h"
+
+1381270064 c:\users\paul-desktop\desktop\innersanctum\gta\collisionresolver.h
+	"ICollidable.h"
+	<map>
+	<utility>
+
+1381353951 c:\users\paul-desktop\desktop\innersanctum\gta\icollidable.h
+	<boost/shared_ptr.hpp>
+	"Vec3.h"
+	<vector>
+	<limits>
+	<iostream>
+	<cmath>
+	<boost/foreach.hpp>
+	"Sprites.h"
+	<iostream>
+
+1381355647 source:c:\users\paul-desktop\desktop\innersanctum\gta\icollidable.cpp
+	"ICollidable.h"
+	<boost/foreach.hpp>
 

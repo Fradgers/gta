@@ -2,7 +2,9 @@
 #include <fstream>
 
 #include "Tiles.h"
-#include "Collision_System.h"
+#include "Objects.h"
+#include "City.h"
+#include "CollisionResolver.h"
 
 GLfloat depth = 40.0f;
 
@@ -57,6 +59,7 @@ int main( int argc, char** argv )
     Tiles tiles;
 
     Car2D car( Vec3(76.5f,83.0f,2.0f), Vec3(1.0f,2.0f,0.0f) );
+    Car2D car2( Vec3(86.5f,83.0f,2.0f), Vec3(1.0f,2.0f,0.0f) );
     GLfloat camera_orientation = 0.0f;
 
     load_files( "data/bil.sty", "data/MP1-comp.gmp", &sprites, &tiles, &city );
@@ -73,6 +76,10 @@ int main( int argc, char** argv )
 
     double time = 0;
     int frame_counter = 0;
+
+    CollisionResolver collision_resolver;
+    collision_resolver.subscribe( "Car2d", "Object", resolve_car2d_object );
+    collision_resolver.subscribe( "Car2d", "Car2d", resolve_car2d_car2d );
 
     while ( ! glfwGetKey( GLFW_KEY_ESC ) )
     {
@@ -104,8 +111,15 @@ int main( int argc, char** argv )
         glTranslatef( -camera.x, -camera.y, -camera.z );
 
         city.draw( tiles, camera );
+
+        car.collision_volume().draw(); // highlight collision in white
+        car2.collision_volume().draw();
+
         car.draw( sprites );
+        car2.draw( sprites );
+
         car.update(0.02f);
+        car2.update(0.02f);
 
         car.centre_steering();
 
@@ -113,6 +127,13 @@ int main( int argc, char** argv )
         if ( glfwGetKey( 'S' )) car.brake();
         if ( glfwGetKey( 'D' )) car.steer(3.0f);
         if ( glfwGetKey( 'A' )) car.steer(-3.0f);
+
+        // check for collisions between car and obj
+        CollisionManifold collision = car2.collision_volume().intersects( car.collision_volume() );
+        if ( collision.collision_detected )
+        {
+            collision_resolver.resolve( car, car2, collision );
+        }
 
         tiles.update_animations();
 

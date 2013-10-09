@@ -1,10 +1,17 @@
+#ifndef _OBJECTS_H_
+#define _OBJECTS_H_
+
 #include "Sprites.h"
 #include "Vec3.h"
 #include <boost/foreach.hpp>
+#include "CollisionResolver.h"
 
 enum Color { White = 0, Red, Green, Blue, Cyan, Purple, Yellow, Orange, COLOR_COUNT };
 
-class Object {
+
+
+
+class Object : public ICollidable {
 public:
     Object( Vec3 p, Vec3 d, float a, Color c )
         : pos(p), dimensions(d), angle_degrees(a), color(c)
@@ -49,8 +56,34 @@ public:
         glPopMatrix();
     }
 
-    Vec3 position() { return pos; }
+    Collision_Volume collision_volume() const
+    {
+        std::vector<Vec3> vertices;
+
+        Vec3 X( cos( deg_to_rad * angle_degrees ), -sin( deg_to_rad * angle_degrees ), 0 );
+        Vec3 Y( sin( deg_to_rad * angle_degrees ), cos( deg_to_rad * angle_degrees ), 0 );
+
+        X *= dimensions.x / 2;
+        Y *= dimensions.y / 2;
+
+        vertices.push_back( position() - X - Y );
+        vertices.push_back( position() + X - Y );
+        vertices.push_back( position() + X + Y );
+        vertices.push_back( position() - X + Y );
+
+        std::vector<SeparatingAxis> axes;
+
+        axes.push_back( SeparatingAxis( vertices[1] - vertices[0], vertices ));
+        axes.push_back( SeparatingAxis( vertices[3] - vertices[0], vertices ));
+
+        return Collision_Volume( axes, vertices );
+    }
+
+    virtual std::string type_name() const { return "Object"; };
+
+    Vec3 position() const { return pos; }
     void position( const Vec3& p ) { pos = p; }
+    void move_by( const Vec3& vec ) { pos += vec; }
     float orientation() { return angle_degrees; }
 
     uint8_t sprite_number;
@@ -389,3 +422,5 @@ public:
 private:
     std::vector<Object> objects;
 };
+
+#endif // _OBJECTS_H_

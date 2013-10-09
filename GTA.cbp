@@ -38,9 +38,10 @@
 			<Add option="-lglu32" />
 		</Linker>
 		<Unit filename="City.h" />
-		<Unit filename="Collision_System.h" />
-		<Unit filename="Collision_Volume.cpp" />
-		<Unit filename="Collision_Volume.h" />
+		<Unit filename="CollisionResolver.cpp" />
+		<Unit filename="CollisionResolver.h" />
+		<Unit filename="ICollidable.cpp" />
+		<Unit filename="ICollidable.h" />
 		<Unit filename="Map.cpp" />
 		<Unit filename="Map.h" />
 		<Unit filename="Objects.h" />

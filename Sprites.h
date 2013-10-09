@@ -1,3 +1,6 @@
+#ifndef _SPRITES_H_
+#define _SPRITES_H_
+
 #include "Style.h"
 
 class Sprites {
@@ -62,3 +65,4 @@ public:
     Texture_Collection::Texture_Name* texture_lookup;
 };
 
+#endif // _SPRITES_H_
