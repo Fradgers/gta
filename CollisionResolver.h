@@ -36,7 +36,7 @@ private:
     CollisionResolutionMap collision_resolution_map;
 };
 
-void resolve_car2d_object( ICollidable* car, ICollidable* object, const CollisionManifold& manifold );
+void resolve_car2d_mapcolumn( ICollidable* car, ICollidable* mapcolumn, const CollisionManifold& manifold );
 void resolve_car2d_car2d( ICollidable* carA, ICollidable* carB, const CollisionManifold& manifold );
 
 

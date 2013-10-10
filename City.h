@@ -228,11 +228,10 @@ public:
             return block_indices[ height - bottom ];
     }
 
-
-     Collision_Volume collision_volume() const
+    Collision_Volume collision_volume() const
     {
         std::vector<Vec3> vertices;
-/*
+
         Vec3 X( 0.5f, 0, 0 );
         Vec3 Y( 0, 0.5f, 0 );
 
@@ -240,24 +239,22 @@ public:
         vertices.push_back( pos + X - Y ); // [1]
         vertices.push_back( pos + X + Y );
         vertices.push_back( pos - X + Y ); // [3]
-*/
+
         std::vector<SeparatingAxis> axes;
 
-  //      axes.push_back( Collision::Axis( Vec3( 1,0,0 ), vertices ));
-  //      axes.push_back( Collision::Axis( Vec3( 0,1,0 ), vertices ));
+        axes.push_back( SeparatingAxis( Vec3( 1,0,0 ), vertices ));
+        axes.push_back( SeparatingAxis( Vec3( 0,1,0 ), vertices ));
 
         return Collision_Volume( axes, vertices );
     }
 
-    //virtual void collision_response( const Collision::Physics_Data& ) { ; }
-
     virtual ~Map_Column() { ; }
 
-     void draw( const Sprites& ) const { ; }
-     Vec3 position() const { return pos; }
-     void position( const Vec3& p ) { pos = p; }
+    void draw( const Sprites& ) const { ; }
+    Vec3 position() const { return pos; }
+    void position( const Vec3& p ) { pos = p; }
     //virtual void move_by( const Vec3& vec ) = 0;
-     std::string type_name() const { return "Map_Column"; };
+    std::string type_name() const { return "Map_Column"; };
 
     //void position( const Vec3& new_pos ) { pos = new_pos; }
     void add_block( uint32_t block ) { block_indices.push_back( block ); }
@@ -273,14 +270,20 @@ public:
 class City {
 public:
     City()
-    :   map_columns(
-            new boost::array< boost::array< Map_Column, 256 >, 256 >()
-        )
+    :   map_columns(NULL)
     { ; }
 
     void init( const Map& map, const Tiles& tiles )
     {
         if ( ! map.dmap ) return;
+
+        if ( map_columns != NULL )
+        {
+            delete map_columns;
+            map_blocks.clear();
+        }
+
+        map_columns = new boost::array< boost::array< Map_Column, 256 >, 256 >();
 
         boost::array< boost::array<uint32_t, 256>, 256 > map_indices;
 
@@ -346,18 +349,20 @@ public:
         int x_halfwidth = camera.z * 0.5f;
         int y_halfwidth = camera.z * 0.375f;
 
-        int x_min = camera.x - x_halfwidth - 2;
-        int x_max = camera.x + x_halfwidth + 2;
+        city_draw_top_left     = std::make_pair( camera.x - x_halfwidth - 2, camera.y - y_halfwidth - 2 );
+        city_draw_bottom_right = std::make_pair( camera.x + x_halfwidth + 2, camera.y + y_halfwidth + 2 );
+        //int x_min = camera.x - x_halfwidth - 2;
+        //int x_max = camera.x + x_halfwidth + 2;
 
-        int y_min = camera.y - y_halfwidth - 2;
-        int y_max = camera.y + y_halfwidth + 2;
+        //int y_min = camera.y - y_halfwidth - 2;
+        //int y_max = camera.y + y_halfwidth + 2;
 
         for ( unsigned int z = 0; z != 7; ++z )
         {
             /// 0 to 256
-            for ( int x = x_min; x != x_max; ++x )
+            for ( int x = city_draw_top_left.first; x != city_draw_bottom_right.first; ++x )
             {
-                for ( int y = y_min; y != y_max; ++y )
+                for ( int y = city_draw_top_left.second; y != city_draw_bottom_right.second; ++y )
                 {
                     // map is defined south-to-north
                     Vec3 coords = Vec3( x, y, z );
@@ -387,6 +392,9 @@ public:
     {
         return map_columns->at( x ).at( y );
     }
+
+    std::pair<int,int> city_draw_top_left;
+    std::pair<int,int> city_draw_bottom_right;
 
 private:
     boost::array< boost::array<Map_Column, 256>, 256 >* map_columns;

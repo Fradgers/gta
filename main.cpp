@@ -58,15 +58,16 @@ int main( int argc, char** argv )
     City city;
     Tiles tiles;
 
-    Car2D car( Vec3(76.5f,83.0f,2.0f), Vec3(1.0f,2.0f,0.0f) );
-    Car2D car2( Vec3(86.5f,83.0f,2.0f), Vec3(1.0f,2.0f,0.0f) );
+    Car2D car( Vec3(75.5f,83.0f,2.0f), Vec3(0.7f,2.0f,0.0f) );
+    Car2D car2( Vec3(77.5f,83.0f,2.0f), Vec3(0.7f,2.0f,0.0f) );
     GLfloat camera_orientation = 0.0f;
 
-    load_files( "data/bil.sty", "data/MP1-comp.gmp", &sprites, &tiles, &city );
-    Vec3 camera( 0.0f, 0.0f, 12.0f );
+    Vec3 camera;
+    //load_files( "data/bil.sty", "data/MP1-comp.gmp", &sprites, &tiles, &city );
+    //camera( 0.0f, 0.0f, 12.0f );
 
-    //load_files( "data/wil.sty", "data/wil.gmp", &sprites, &tiles, &city );
-    //Vec3 camera( 168.5f,96.5f,12.0f );
+    load_files( "data/wil.sty", "data/wil.gmp", &sprites, &tiles, &city );
+    camera = Vec3( 168.5f,96.5f,12.0f );
 
     glFrontFace( GL_CCW );
     glEnable( GL_CULL_FACE );
@@ -78,7 +79,7 @@ int main( int argc, char** argv )
     int frame_counter = 0;
 
     CollisionResolver collision_resolver;
-    collision_resolver.subscribe( "Car2d", "Object", resolve_car2d_object );
+    collision_resolver.subscribe( "Car2d", "Map_Column", resolve_car2d_mapcolumn );
     collision_resolver.subscribe( "Car2d", "Car2d", resolve_car2d_car2d );
 
     while ( ! glfwGetKey( GLFW_KEY_ESC ) )
@@ -130,10 +131,32 @@ int main( int argc, char** argv )
 
         // check for collisions between car and obj
         CollisionManifold collision = car2.collision_volume().intersects( car.collision_volume() );
+
         if ( collision.collision_detected )
-        {
             collision_resolver.resolve( car, car2, collision );
-        }
+
+        // for all map blocks immediately around car
+        const int detection_radius = 5;
+
+        for ( int x = static_cast<uint8_t>(car.position().x) - detection_radius; x != static_cast<uint8_t>(car.position().x) + detection_radius; ++x )
+            for ( int y = static_cast<uint8_t>(car.position().y) - detection_radius; y != static_cast<uint8_t>(car.position().y) + detection_radius; ++y )
+            {
+                // check the column at these coords has a block at the car's z-coord
+                Map_Column& column = city.column_at(x,y);
+
+                if ( column.block_at_height( static_cast<uint8_t>(car.position().z)))
+                {
+                    // if it does, check for collision between the car and the map column
+                    collision = column.collision_volume().intersects( car.collision_volume() );
+
+                    if ( collision.collision_detected )
+                    {
+                        // resolve the first collision detected and skip to next frame
+                        collision_resolver.resolve( car, column, collision );
+                        break;
+                    }
+                }
+            }
 
         tiles.update_animations();
 

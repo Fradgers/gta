@@ -2,9 +2,9 @@
 #include "CollisionResolver.h"
 #include "Objects.h"
 
-void resolve_car2d_object( ICollidable* collidableA, ICollidable* collidableB, const CollisionManifold& manifold )
+void resolve_car2d_mapcolumn( ICollidable* collidableA, ICollidable* collidableB, const CollisionManifold& manifold )
 {
-    std::cout << std::endl << "Called resolve_car2d_object()" << std::endl << std::endl;
+    std::cout << std::endl << "Called resolve_car2d_mapcolumn()" << std::endl << std::endl;
 
     if ( manifold.collision_detected == true )
     {

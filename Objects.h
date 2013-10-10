@@ -16,13 +16,11 @@ public:
     Object( Vec3 p, Vec3 d, float a, Color c )
         : pos(p), dimensions(d), angle_degrees(a), color(c)
     {
-        pos = Vec3(76.5f,83.0f,2.0f);
         w = dimensions.x;
         h = dimensions.y;
-        angle_degrees = 35.0f;
 
         sprite_number = 10;
-        wdiv2 = w / 2.0f;
+        wdiv2 = (w*1.4f) / 2.0f;
         hdiv2 = h / 2.0f;
         velocity = 0.25f;
     }
