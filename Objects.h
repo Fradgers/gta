@@ -325,7 +325,7 @@ public:
     void accelerate()
     {
         // thrust = (P:W) * mass * grav / velocity
-        float thrust = std::min( 1856340.0f / velocity.magnitude(), 30000.0f );
+        float thrust = std::min( 1856340.0f / velocity.magnitude(), 10000.0f );
 
         // alternative: thrust = (T:W) * mass
 

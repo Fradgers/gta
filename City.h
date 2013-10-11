@@ -9,12 +9,16 @@ public:
         angle = GLfloat( 90.0f ) * (( data >> 14 ) & 0x3 );
         texture_xflip = ( data >> 13 ) & 0x1;
         double_sided = ( data >> 12 ) & 0x1;
+        bullet_collide = ( data >> 11 ) & 0x1;
+        collide = ( data >> 10 ) & 0x1;
         texture_id = ( data & 0x3FF );
     }
 
     GLfloat angle;
     bool texture_xflip;
     uint16_t texture_id;
+    bool collide;
+    bool bullet_collide;
     bool double_sided;
 };
 
@@ -44,7 +48,6 @@ public:
             }
         }
     }
-
 
     uint8_t arrows;
     Block_Type type;
@@ -391,6 +394,20 @@ public:
     Map_Column& column_at( unsigned int x, unsigned int y )
     {
         return map_columns->at( x ).at( y );
+    }
+
+    Map_Block* block_at( unsigned int x, unsigned int y, unsigned int z )
+    {
+        Map_Column& column = column_at(x,y);
+
+        if ( z >= column.bottom && z < column.top )
+        {
+            uint32_t block_id = column.block_at_height(z);
+
+            return &map_blocks[ block_id ];
+        }
+        else
+            return NULL;
     }
 
     std::pair<int,int> city_draw_top_left;

@@ -142,9 +142,11 @@ int main( int argc, char** argv )
             for ( int y = static_cast<uint8_t>(car.position().y) - detection_radius; y != static_cast<uint8_t>(car.position().y) + detection_radius; ++y )
             {
                 // check the column at these coords has a block at the car's z-coord
-                Map_Column& column = city.column_at(x,y);
+                Map_Column& column = city.column_at( x, y );
+                Map_Block* block = city.block_at( x, y, static_cast< uint8_t >( car.position().z ));
 
-                if ( column.block_at_height( static_cast<uint8_t>(car.position().z)))
+                if ( block != NULL && (block->faces[ Left ].collide || block->faces[ Right ].collide || block->faces[ Front ].collide || block->faces[ Rear ].collide ))
+                //if ( column.block_at_height( static_cast< uint8_t >( car.position().z )))
                 {
                     // if it does, check for collision between the car and the map column
                     collision = column.collision_volume().intersects( car.collision_volume() );
